@@ -6,9 +6,24 @@ argument-hint: Project path, architecture-docs goal, or docs to sync.
 
 Use this skill to create or refresh `.agents/` guidance docs from current repo evidence. Documentation-only — do not edit runtime code, tests, configs, Docker, or deps. If fixing docs reveals a code issue, mention it as a follow-up.
 
+## Audit before write
+
+Before refreshing or rewriting docs, scan for staleness — drift between docs and current code is the most common doc bug:
+
+1. List all markdown under `.agents/` and root-level docs (`README*.md`, `CLAUDE.md`).
+2. Extract every `file/path.ext`, symbol name, env var, and command mentioned.
+3. Cross-check against reality:
+   - File path → `ls` / `codegraph_files`
+   - Symbol → `codegraph_search`
+   - Env var → grep `.env.example` / `Config` class
+   - Command → run `--help` or verify the script exists
+4. Flag stale references and contradictions across files (same fact, different values).
+
+Fix stale references as part of the same task; surface contradictions in the output report.
+
 ## Evidence workflow
 
-1. Read instruction entrypoints first: `AGENTS.md`, `.github/copilot-instructions.md`, `.agents/README.md`.
+1. Read instruction entrypoints first: `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`, `.agents/README.md`.
 2. Read only docs targeted by the requested change.
 3. Use codegraph for structural facts (components, entrypoints, symbols, call flow, impact). Do not re-derive these in the docs themselves — codegraph already answers them on demand.
 4. Inspect manifests/runtime files only to verify commands, env vars, services, deps.
@@ -21,7 +36,12 @@ Use this skill to create or refresh `.agents/` guidance docs from current repo e
 - `AGENT_RULES.md` — safety, workflow, style, PR hygiene, verified gotchas.
 - `TESTING_GUIDE.md` — test layout, commands, service dependencies.
 
-Do not create extra per-style/git/glossary/per-task files unless the repo has a repeated operational need that won't fit above.
+Extra subfolders allowed when a real recurring need exists:
+- `plans/` — implementation plans (active or recently finished, with `status:` field).
+- `decisions/` — ADR-style records of accepted architectural decisions.
+- `runbooks/` — operational procedures triggered repeatedly (incident response, release).
+
+Trigger threshold: ≥3 files of the same shape, or an operation repeated on a schedule. Do not pre-create empty subfolders.
 
 ## What belongs in docs
 

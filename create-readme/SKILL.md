@@ -9,7 +9,7 @@ Use this skill to create or rewrite a project `README.md` from repository eviden
 ## Evidence priority
 
 1. Valid, accessible project path.
-2. Instruction entrypoints: `AGENTS.md`, `.github/copilot-instructions.md`, `.agents/README.md`.
+2. Instruction entrypoints: `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`, `.agents/README.md`.
 3. Existing README files.
 4. Targeted project docs linked from the entrypoint (runtime, testing, provider, Docker, security).
 5. Manifests + source structure: dependency files, Docker, `.env.example`, entrypoints, tests, scripts.

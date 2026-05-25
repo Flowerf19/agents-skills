@@ -15,7 +15,7 @@ Use this skill to convert a spec/feature/bug/subsystem goal into a concise plan 
 ## Before drafting
 
 - If `.agents/` is missing, run the `architecture-docs` skill first to bootstrap.
-- Read instruction entrypoints only: `AGENTS.md`, `.agents/README.md`, `.github/copilot-instructions.md`.
+- Read instruction entrypoints only: `AGENTS.md`, `CLAUDE.md`, `.agents/README.md`, `.github/copilot-instructions.md`.
 - Use codegraph for structure (definitions, callers, callees, impact, related files). Read source only after codegraph points at the exact target.
 - Check official external docs only when the plan depends on third-party API/library behavior.
 
@@ -37,4 +37,22 @@ Avoid: broad rewrites, speculative abstractions, duplicated logic, TODO/TBD plac
 
 ## Output
 
-`implementation_plan.md` with sections: Summary, Key Changes, Test Plan, Assumptions. Execution-ready.
+`implementation_plan.md` (default location: `.agents/plans/<slug>.md`) with a YAML header for lifecycle tracking:
+
+```yaml
+---
+status: draft   # draft | in-progress | done | abandoned
+created: YYYY-MM-DD
+---
+```
+
+Body sections: Summary, Key Changes, Test Plan, Assumptions. Execution-ready.
+
+## Lifecycle
+
+- `draft` — plan written, waiting for user approval.
+- `in-progress` — approved, `thoughtful-coder` is executing.
+- `done` — implementation merged. Either keep as decision record in `.agents/plans/` with `status: done`, or move to `.agents/decisions/` if it captures a long-lived architectural choice.
+- `abandoned` — superseded or no longer needed. Keep the file with `status: abandoned` and a one-line reason, so future planners don't re-derive the same dead end.
+
+`thoughtful-coder` updates `status` at end of implementation; do not leave plans in `in-progress` after merging.
