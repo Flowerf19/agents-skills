@@ -1,56 +1,85 @@
-# Agent Skills — Bộ Kỹ năng Tùy chỉnh cho AI Coding Assistant
+# Agent Skills
 
-Đây là kho lưu trữ bộ kỹ năng (Skills) toàn cục được thiết kế và tùy chỉnh riêng cho trợ lý lập trình AI (như Antigravity/Gemini Agent). Bộ kỹ năng này giúp chuẩn hóa quy trình làm việc từ khâu lập kế hoạch, code, kiểm thử cho đến viết tài liệu cho bất kỳ dự án phần mềm nào.
+Bộ skill toàn cục cho AI coding agents (Claude Code, Antigravity, Gemini, Cursor, ...). Skills viết theo định dạng `SKILL.md` với YAML frontmatter — Claude Code auto-discover qua `/<skill-name>`, agent khác đọc `SKILL.md` trực tiếp.
 
-## 🚀 Danh sách 4 Kỹ năng (Skills) Cốt lõi
+## Yêu cầu
 
-Bộ kỹ năng này bao gồm 4 công cụ chuyên biệt hoạt động bổ trợ lẫn nhau:
+Skills giả định 2 thứ có sẵn trong project:
 
-### 1. `implementation-planner` (Lập kế hoạch triển khai)
-* **Vai trò:** Phân tích yêu cầu tính năng mới, spec hoặc bug phức tạp để phác thảo sơ đồ thực hiện.
-* **Đầu ra:** File kế hoạch `implementation_plan.md` chi tiết để người dùng review và phê duyệt, kèm danh sách công việc `task.md` (TODO list) để theo dõi tiến độ.
-* **Nguyên tắc:** Thực hiện trước khi sửa code nhằm giảm thiểu rủi ro sai lệch kiến trúc.
+1. **CodeGraph MCP** — index AST cho mọi câu hỏi structural. Skills sẽ delegate `codegraph_search`, `codegraph_callers`, `codegraph_impact`, `codegraph_context` thay vì grep/read thủ công.
+   ```bash
+   npm install -g @colbymchenry/codegraph
+   codegraph init -i      # 1 lần mỗi repo, tạo .codegraph/
+   ```
+2. **`.agents/` docs** — agent guidance project-specific (boundary, gotcha, testing). Bootstrap tự động bằng `architecture-docs` khi skill nào cần mà folder chưa tồn tại.
 
-### 2. `thoughtful-coder` (Lập trình cẩn trọng)
-* **Vai trò:** Hướng dẫn Agent chỉnh sửa mã nguồn một cách "ngoại khoa" (surgical changes) — chỉ chỉnh sửa những dòng thực sự cần thiết cho task.
-* **Thứ tự ưu tiên:** `Đúng đắn (Correctness)` $\rightarrow$ `Diff tối thiểu (Minimal diff)` $\rightarrow$ `Đồng bộ với dự án (Consistency)` $\rightarrow$ `Dễ xác minh (Verifiable)` $\rightarrow$ `Đơn giản (Simplicity)`.
-* **Nguyên tắc:** Tận dụng tối đa các helper có sẵn, tránh tự vẽ thêm các cấu trúc trừu tượng phức tạp, dọn sạch import thừa sau khi code.
+## Install
 
-### 3. `architecture-docs` (Quản lý tài liệu kiến trúc)
-* **Vai trò:** Đồng bộ và cập nhật tự động bộ nhớ hướng dẫn đại lý nằm trong thư mục `.agents/` của dự án dựa trên cấu trúc thực tế của codebase.
-* **Đầu ra:** Các tài liệu hướng dẫn chuẩn hóa (`README.md`, `PROJECT_CONTEXT.md`, `AGENT_RULES.md`, `TESTING_GUIDE.md`).
+**Global** (khuyến nghị, áp dụng cho mọi project):
 
-### 4. `create-readme` (Viết tài liệu README dự án)
-* **Vai trò:** Viết hoặc cập nhật file `README.md` chính của dự án dựa trên các bằng chứng thực tế trong code (tệp config, docker, lệnh chạy...).
-* **Nguyên tắc:** Giới hạn tài liệu ngắn gọn, dễ hiểu và thực tế, không tự vẽ ra tính năng hoặc hướng dẫn không có thật.
+```bash
+git clone https://github.com/Flowerf19/agents-skills.git ~/.claude/skills
+```
 
----
+**Per-project** (submodule, pinned version cho team):
 
-## 💡 Quy trình Làm việc & Quy tắc Bắt buộc (Core Workflow)
+```bash
+cd <project>
+git submodule add https://github.com/Flowerf19/agents-skills.git .agents/skills
+mkdir -p .claude && ln -s ../.agents/skills .claude/skills    # Claude Code discovery
+```
 
-Mọi Agent (bao gồm cả các subagent chạy ngầm) khi bắt đầu nhận nhiệm vụ trong bất kỳ repository nào đều phải tuân thủ quy trình sau:
+Update upstream: `cd ~/.claude/skills && git pull` (hoặc `git submodule update --remote .agents/skills`).
 
-### 🛠️ Nguyên tắc Khởi tạo Bộ nhớ Đại lý (`.agents/` Bootstrapping)
-> [!IMPORTANT]
-> Quy tắc tối quan trọng: Trước khi thực hiện bất kỳ công việc lập kế hoạch (`implementation-planner`) hoặc viết code (`thoughtful-coder`), Agent bắt buộc phải kiểm tra xem dự án đã có thư mục `.agents/` chưa. 
-> * **Nếu chưa có:** Phải gọi ngay skill `architecture-docs` để phân tích và khởi tạo cấu trúc tài liệu `.agents/` cho dự án.
-> * **Lý do:** Điều này giúp thiết lập ranh giới an toàn, quy ước code và cấu hình Docker của dự án ngay từ đầu, đảm bảo các subagent chạy ngầm sau đó đều có chung một nguồn tài liệu hướng dẫn và hoạt động chính xác.
+## Skills (6)
 
-### 🔍 Ưu tiên CodeGraph (CodeGraph First)
-* Agent luôn phải ưu tiên sử dụng các MCP tools của **CodeGraph** (`codegraph_context`, `codegraph_search`, `codegraph_callers`,...) để tìm kiếm cấu trúc code trước khi đọc file thủ công bằng lệnh shell/grep để tiết kiệm tài nguyên và tăng độ chính xác.
+| Skill | Khi dùng | Output |
+|---|---|---|
+| [`implementation-planner`](implementation-planner/SKILL.md) | Trước khi code feature/bug/refactor lớn | `.agents/plans/<slug>.md` với `status:` lifecycle (draft/in-progress/done/abandoned) |
+| [`thoughtful-coder`](thoughtful-coder/SKILL.md) | Mỗi code change | Diff tối thiểu + Documentation impact block + plan close-out |
+| [`debug-investigator`](debug-investigator/SKILL.md) | Khi có bug, test fail, perf regression | Root cause + handoff sang `thoughtful-coder` |
+| [`code-reviewer`](code-reviewer/SKILL.md) | Sau `thoughtful-coder`, trước merge | Issue list Critical/Important/Minor + verdict |
+| [`architecture-docs`](architecture-docs/SKILL.md) | Sau arch change lớn / refactor đụng nhiều file | `.agents/{README,PROJECT_CONTEXT,AGENT_RULES,TESTING_GUIDE}.md`, audit stale references trước khi sửa |
+| [`create-readme`](create-readme/SKILL.md) | README dự án thiếu hoặc stale | Root `README.md` từ evidence (manifests, docker, entrypoints) |
 
----
-
-## 📦 Cấu trúc Thư mục Kỹ năng
+## Workflow chain
 
 ```text
-skills/
-├── architecture-docs/    # Chỉ dẫn viết tài liệu hướng dẫn kiến trúc đại lý
-│   └── SKILL.md
-├── create-readme/        # Chỉ dẫn tạo file README.md cho dự án
-│   └── SKILL.md
-├── implementation-planner/# Chỉ dẫn lập kế hoạch và thiết kế hệ thống
-│   └── SKILL.md
-└── thoughtful-coder/     # Chỉ dẫn code cẩn thận, tinh gọn và an toàn
-    └── SKILL.md
+implementation-planner ─→ user duyệt plan (status: draft → in-progress)
+        ↓
+thoughtful-coder  ←──── debug-investigator (nếu bug)
+        ↓ (cập nhật plan status: done/abandoned)
+code-reviewer ─→ author act on feedback
+        ↓
+architecture-docs / create-readme (nếu Documentation impact ≠ none)
 ```
+
+## Quy tắc chung
+
+1. **`.agents/` bootstrap** — repo chưa có thì skill nào đụng vào cũng phải gọi `architecture-docs` trước.
+2. **CodeGraph first** — câu hỏi structural đi qua codegraph trước khi grep/Read.
+3. **Không duplicate codegraph trong output** — không file structure dump, symbol inventory, caller/callee chain trong doc/plan/README. Codegraph trả lời on-demand.
+4. **Instruction entrypoints** — skill đọc theo thứ tự: `AGENTS.md` → `CLAUDE.md` → `.github/copilot-instructions.md` → `.agents/README.md`.
+
+## Format
+
+Mỗi skill là 1 folder chứa `SKILL.md` với frontmatter YAML:
+
+```yaml
+---
+name: <kebab-case-name>
+description: <one line — Claude scan để quyết invoke>
+argument-hint: <input format hint>
+---
+```
+
+Body là procedural instruction (không "You are a..."). Claude Code load nội dung khi skill được invoke.
+
+## Đóng góp
+
+PR welcome. Trước khi propose skill mới, check 2 câu hỏi:
+
+1. Có thể nhét vào skill cũ qua 1 section (10-20 dòng) không?
+2. Pain có recurring + workflow khác hẳn skill hiện tại không?
+
+Cả 2 trả lời CÓ → skill mới. Còn lại → tinh skill cũ. Sweet spot là 6 skill — thêm nữa thì noise vs signal xấu đi.
