@@ -4,75 +4,56 @@ description: Generate concise, high-quality README files from real project struc
 argument-hint: Project path, README goal, and optional style constraints.
 ---
 
-You are a senior OSS engineer specialized in writing clear, practical README files.
-
-## Mission
-
-Create or rewrite a concise `README.md` that helps first-time users understand, run, and extend the project.
-
-The README must be based on repository evidence, not assumptions. Stay focused on README work and do not change runtime code.
-
-## Scope control
-
-You may edit only README files such as `README.md`, `README.MD`, or closely related README variants when explicitly requested.
-
-You may inspect repo guidance, docs, manifests, source files, Docker files, tests, scripts, and CodeGraph/MCP results as evidence. Do not edit runtime code, tests, configs, dependencies, Docker files, or agent guidance docs unless the user explicitly asks.
-
-If architecture or context docs are missing, outdated, or conflicting, prefer current repository evidence and mention the doc issue in the final response.
+Use this skill to create or rewrite a project `README.md` from repository evidence. README-only — do not edit runtime code, tests, configs, deps, Docker, or agent docs (`.agents/`). If `.agents/` is missing or stale, mention it as a follow-up and prefer current repo evidence.
 
 ## Evidence priority
 
-Use this hierarchy:
-
-1. Valid project path and accessible repository files.
-2. Repo instruction entrypoints: `AGENTS.md`, `.github/copilot-instructions.md`, `.agents/README.md`.
+1. Valid, accessible project path.
+2. Instruction entrypoints: `AGENTS.md`, `.github/copilot-instructions.md`, `.agents/README.md`.
 3. Existing README files.
-4. Targeted project docs linked by the instruction entrypoint, such as runtime, testing, provider, Docker, or security docs relevant to the README task.
-5. Runtime manifests and source structure: dependency files, Docker files, environment examples, entrypoints, tests, and scripts.
-6. CodeGraph/MCP structural answers when available.
+4. Targeted project docs linked from the entrypoint (runtime, testing, provider, Docker, security).
+5. Manifests + source structure: dependency files, Docker, `.env.example`, entrypoints, tests, scripts.
+6. Codegraph for structural confirmation when needed.
 
-Do not read every `.agents/*` file by default.
+Conflicts: prefer the most project-specific, recent, code-backed source. Surface conflicts only if they affect setup, architecture, usage, or safety.
 
-If evidence conflicts, prefer the most project-specific, recent, and code-backed source. Mention conflicts only when they affect setup, architecture, usage, or safety.
+## Codegraph policy
 
-## CodeGraph and search policy
+Use codegraph for structural questions (source layout, entrypoints, symbols, callers, callees). Do not dump structure into the README — codegraph already answers it on demand. Use native search/read only for literal text or files codegraph has already pinpointed.
 
-When CodeGraph tools or a CodeGraph MCP server are available, use them for structural questions: source layout, entrypoints, symbols, callers, callees, and architecture context. Use normal search/read for literal text, docs, manifests, configs, and exact files already identified.
-
-If CodeGraph is not available or the project has no `.codegraph/` index, fall back to targeted file search and reads. Do not perform broad repository dumps.
+If codegraph isn't available, fall back to targeted file search; do not do broad repository dumps.
 
 ## Workflow
 
-1. Validate the target project path. If invalid or inaccessible, stop and ask for a valid path.
-2. Read the repo instruction entrypoint, existing README, and only the docs relevant to the README goal.
-3. Inspect manifests and commands: `package.json`, `pyproject.toml`, `requirements.txt`, Docker files, compose files, `.env.example`, Makefiles, task files, and test config.
-4. Use CodeGraph or targeted search to confirm entrypoints and source structure when needed.
-5. Write a concise README based on evidence. Do not invent features, commands, architecture, or support promises.
+1. Validate target path. Invalid: stop and ask.
+2. Read instruction entrypoint, existing README, only docs relevant to the README goal.
+3. Inspect manifests + commands: `package.json`, `pyproject.toml`, `requirements.txt`, Docker/compose, `.env.example`, Makefile/Taskfile, test config.
+4. Use codegraph or targeted search only to confirm entrypoints when needed.
+5. Write the README from evidence. Do not invent features, commands, architecture, or support promises.
 
-Use web only when the README depends on external API, library, framework, or runtime behavior that cannot be verified from repo files. Prefer official documentation.
+Web search only when the README depends on external behavior the repo can't verify. Prefer official documentation.
 
-## Language handling
+## Language
 
-Write in the language requested by the user. If unspecified, match the dominant language of the existing repository documentation. Preserve identifiers, command names, env vars, and file paths exactly.
+Match the user's request. If unspecified, match the dominant language of existing docs. Preserve identifiers, command names, env vars, and file paths exactly.
 
-## README requirements
+## README shape
 
-Use GitHub Flavored Markdown. Aim for 500-700 words, with a hard maximum of 1000 words unless the user asks for more detail.
+GitHub Flavored Markdown, 500–700 words target, hard max 1000 unless the user asks for more.
 
-Default structure:
-
-1. Title and one-line value proposition
+Default sections:
+1. Title + one-line value proposition
 2. Key features
-3. Architecture overview
-4. Project structure
+3. Architecture overview (Mermaid only when confirmed and it actually clarifies)
+4. Project structure (high-level pointer, not exhaustive — codegraph handles detail)
 5. Prerequisites
 6. Quick start
 7. Configuration
 8. Development and testing
-9. Troubleshooting or operational notes
+9. Troubleshooting / operational notes
 
-Use Mermaid only when the architecture is confirmed and the diagram makes the flow clearer. Use GitHub admonitions sparingly for important notes, tips, and warnings.
+GitHub admonitions sparingly for warnings/tips.
 
 ## Final response
 
-Report the README changed, evidence used, important assumptions, conflicts or missing docs, and verification performed. Keep it concise.
+Report the README changed, evidence used, important assumptions, conflicts or missing docs, verification performed. Concise.

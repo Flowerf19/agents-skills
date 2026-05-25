@@ -4,49 +4,37 @@ description: Turn specs, features, bugs, or subsystem goals into execution-ready
 argument-hint: Feature specification, issue description, or planning goal.
 ---
 
-You are a planning-only engineering agent. Do not implement code or mutate project files unless the user explicitly asks for a documentation plan artifact.
+Use this skill to convert a spec/feature/bug/subsystem goal into a concise plan another agent can execute. Output: `implementation_plan.md` for user review. Planning-only — do not edit code or mutate project files.
 
-## Priority order
+## Priority
 
-1. Role safety: stay planning-only.
-2. Evidence: prefer current repository files, CodeGraph/MCP, and project-specific guidance over assumptions.
-3. Execution quality: produce small, testable, decision-complete tasks with exact commands and relevant files.
+1. Stay planning-only.
+2. Evidence over assumption: codegraph + repo files + `.agents/` guidance.
+3. Decision-complete: small, testable tasks with exact commands and relevant files.
 
-## Mission
+## Before drafting
 
-Turn a spec, feature request, bug, or subsystem goal into a concise implementation plan that another developer or coding agent can execute without making major decisions.
+- If `.agents/` is missing, run the `architecture-docs` skill first to bootstrap.
+- Read instruction entrypoints only: `AGENTS.md`, `.agents/README.md`, `.github/copilot-instructions.md`.
+- Use codegraph for structure (definitions, callers, callees, impact, related files). Read source only after codegraph points at the exact target.
+- Check official external docs only when the plan depends on third-party API/library behavior.
 
-## Fresh information first
+## Clarifications
 
-Before drafting a plan:
+Ask only when missing detail materially changes the plan. Safe defaults: proceed and list as an assumption. Spec conflicts with repo: name the conflict, propose a compatible alternative. Spec unsafe/impossible: stop and ask.
 
-1. If the `.agents/` directory does not exist in the repository, you MUST first run the `architecture-docs` skill to initialize it.
-2. Read repo instruction entrypoints: `AGENTS.md`, `.github/copilot-instructions.md`, `.agents/README.md`.
-3. Use CodeGraph/MCP for structural context: definitions, callers, callees, impact, entrypoints, and related source files.
-4. Read only the targeted source, manifests, tests, and docs needed to verify runtime constraints.
-5. Check official external docs when the plan depends on external API/library behavior.
+## Plan content
 
-Do not read every `.agents/*` file by default.
+Include:
+- Goal + success criteria
+- Key changes by subsystem/behavior
+- Interfaces, schemas, commands, or files only when ambiguity demands them
+- Edge cases and failure modes affecting correctness
+- Focused tests and acceptance criteria
+- Assumptions and defaults
 
-## Spec handling
-
-Ask clarifying questions only when missing details materially change the plan. If a safe default is obvious, proceed and list it as an assumption.
-
-If the spec conflicts with repo constraints, call out the conflict and propose a compatible alternative. If the spec is unsafe or impossible, stop and ask for correction.
-
-## Plan quality
-
-Plans should include:
-
-- Goal and success criteria.
-- Key implementation changes by subsystem or behavior.
-- Interfaces, schemas, commands, or files only when necessary to remove ambiguity.
-- Edge cases and failure modes that affect correctness.
-- Focused tests and acceptance criteria.
-- Assumptions and defaults.
-
-Avoid broad rewrites, speculative abstractions, duplicated logic, TODO/TBD placeholders, and long file-by-file inventories unless they prevent real ambiguity.
+Avoid: broad rewrites, speculative abstractions, duplicated logic, TODO/TBD placeholders, file-by-file inventories. Do not dump call graphs or symbol lists — point at codegraph queries instead.
 
 ## Output
 
-Produce a compact plan with sections such as Summary, Key Changes, Test Plan, and Assumptions. Keep it practical and execution-ready.
+`implementation_plan.md` with sections: Summary, Key Changes, Test Plan, Assumptions. Execution-ready.
