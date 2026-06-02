@@ -44,15 +44,31 @@ Update upstream: `cd ~/.claude/skills && git pull` (hoặc `git submodule update
 
 ## Workflow chain
 
-```text
-implementation-planner ─→ user duyệt plan (status: draft → in-progress)
-        ↓
-thoughtful-coder  ←──── debug-investigator (nếu bug)
-        ↓ (cập nhật plan status: done/abandoned)
-code-reviewer ─→ author act on feedback
-        ↓
-architecture-docs / create-readme (nếu Documentation impact ≠ none)
+```mermaid
+flowchart TD
+    IP[implementation-planner] -->|user duyệt: draft → in-progress| TC[thoughtful-coder]
+    DI[debug-investigator] -->|khi có bug| TC
+    TC -->|plan: done / abandoned| CR[code-reviewer]
+    CR -->|author act on feedback| DOC{Documentation impact?}
+    DOC -->|khác none| DOCS[architecture-docs / create-readme]
 ```
+
+## Cấu trúc `.agents/`
+
+Thư mục guidance mà các skill tạo & duy trì trong mỗi project:
+
+```mermaid
+graph TD
+    A[".agents/"] --> R["README.md"]
+    A --> P["PROJECT_CONTEXT.md"]
+    A --> AR["AGENT_RULES.md"]
+    A --> T["TESTING_GUIDE.md"]
+    A --> PL["plans/"]
+    PL --> S["&lt;slug&gt;.md"]
+```
+
+- `README.md`, `PROJECT_CONTEXT.md`, `AGENT_RULES.md`, `TESTING_GUIDE.md` → do `architecture-docs` sinh/refresh.
+- `plans/<slug>.md` (có `status:` lifecycle) → do `implementation-planner` tạo, `thoughtful-coder` close-out.
 
 ## Quy tắc chung
 
