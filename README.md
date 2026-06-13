@@ -42,6 +42,34 @@ Update upstream: `cd ~/.claude/skills && git pull` (hoặc `git submodule update
 | [`architecture-docs`](architecture-docs/SKILL.md) | Sau arch change lớn / refactor đụng nhiều file | `.agents/{README,PROJECT_CONTEXT,AGENT_RULES,TESTING_GUIDE}.md`, audit stale references trước khi sửa |
 | [`create-readme`](create-readme/SKILL.md) | README dự án thiếu hoặc stale | Root `README.md` từ evidence (manifests, docker, entrypoints) |
 
+## Cách dùng
+
+### Invoke theo agent type
+
+**Claude Code** — gõ `/<skill-name>` trong chat, hoặc để auto-discover: mô tả task bằng ngôn ngữ tự nhiên, Claude Code scan `description` trong frontmatter và tự chọn skill phù hợp.
+
+```
+/implementation-planner Thêm OAuth2 login cho gateway service
+/thoughtful-coder Fix null pointer khi user chưa có profile
+/code-reviewer HEAD~1..HEAD
+```
+
+**Codex / Antigravity / Cursor / agent khác** — không có slash-command discovery. Trỏ agent đọc `~/.claude/skills/<name>/SKILL.md` và follow procedural instruction trong body. Ví dụ với Cursor: attach file `~/.claude/skills/debug-investigator/SKILL.md` vào context rồi mô tả bug.
+
+### Ví dụ cụ thể mỗi skill
+
+| Skill | Input ví dụ | Output nhận được |
+|---|---|---|
+| `implementation-planner` | `"Thêm rate limiting vào API gateway"` | `.agents/plans/rate-limiting.md` — GOAL/TASK IDs, completion ledger `\| ID \| Task \| Done \| Date \|`, YAML header `status: draft` |
+| `implementation-planner` _(update)_ | `"Scope thay đổi: bỏ Redis, dùng in-memory"` | Plan cũ được update in-place — task cũ giữ nguyên ID, task mới append ID tiếp theo, task bị thay thế gạch chân với lý do |
+| `thoughtful-coder` | `"Implement TASK-003 trong plan rate-limiting"` | Diff tối thiểu + Documentation impact block + tick ✅ TASK-003 trong ledger |
+| `debug-investigator` | Stack trace `KeyError: 'user_id'` trong `handler.py:142` | Root cause 1 câu (cause→effect) + failing test + handoff sang `thoughtful-coder` |
+| `code-reviewer` | `git diff origin/main..HEAD` hoặc PR number | Danh sách issue phân loại Critical/Important/Minor + verdict `Approve / Approve with fixes / Request changes` |
+| `architecture-docs` | `"Refresh .agents/ sau khi refactor memory module"` | `.agents/README.md`, `PROJECT_CONTEXT.md`, `AGENT_RULES.md`, `TESTING_GUIDE.md` — stale references đã audit và fix |
+| `create-readme` | `"Viết README cho repo này"` | `README.md` từ manifests, docker, entrypoints — không file dump, không codegraph duplication |
+
+> **Tip:** `implementation-planner` hỗ trợ cả tạo plan mới lẫn update plan hiện có. IDs (`TASK-`, `GOAL-`) append-only — không bao giờ đánh số lại.
+
 ## Workflow chain
 
 ```mermaid
