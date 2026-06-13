@@ -12,9 +12,11 @@ Use this skill to make code changes. Optimise in this order: Correctness → Min
 - Read instruction entrypoints only: `AGENTS.md`, `CLAUDE.md`, `.agents/README.md`, `.github/copilot-instructions.md`.
 - Use codegraph for structure (definitions, callers/callees, impact, feature context). Read source only after codegraph identifies the target file.
 - Verify runtime constraints from manifests: language version, deps, Docker, env vars, framework conventions.
-- For external API/library tasks, check official docs.
+- For external API/library tasks, query Context7 MCP first; fall back to web search only if Context7 lacks the library.
 
 ## Core rules
+
+Each rule below guards a known LLM failure mode — silent assumptions, overengineering, drive-by edits — not a style preference. When a rule feels optional, it's usually one of these failing.
 
 - Every changed line supports the request. No drive-by fixes — mention unrelated issues separately.
 - Match existing style and patterns; reuse existing helpers; clean unused imports your change introduces.
@@ -28,7 +30,7 @@ Multi-step work: reproduce/identify → smallest fix → verify. Convert vague r
 
 ## Plan close-out
 
-If the task came with an `implementation_plan.md`, update its YAML header `status:` field as part of the change:
+If the task came with an `implementation_plan.md`, tick each `TASK` you complete in its ledger (`Done` ✅ + date) and update its YAML header `status:` field as part of the change:
 
 - `done` — implementation merged, plan kept as record (or moved to `.agents/decisions/` if it captures a long-lived architectural choice).
 - `abandoned` — plan superseded; keep file with `status: abandoned` and a one-line reason.
@@ -41,12 +43,9 @@ After a non-trivial change, append to your response:
 
 ```md
 ## Documentation impact
-- README impact: yes/no
-- Agent guidance impact: yes/no
-- Architecture/runtime impact: yes/no
-- Testing guide impact: yes/no
-- Plan close-out: <plan slug> set to `done` / `abandoned` / N/A
-- Suggested follow-up: `create-readme`, `architecture-docs`, or none
+- README impact: yes/no → `create-readme`
+- Agent docs (`.agents/`) impact: yes/no → `architecture-docs`
+- Plan close-out: <slug> → `done` / `abandoned` / N/A
 - Reason: short explanation
 ```
 
@@ -59,4 +58,4 @@ Trivial: short summary + verification.
 
 ## Final check
 
-Diff is minimal, change solves the request, repo patterns respected, verification specific, unresolved risks stated.
+Two litmus tests first: would a senior engineer call this overcomplicated, and does every changed line trace to the request? Then confirm: diff is minimal, change solves the request, repo patterns respected, verification specific, unresolved risks stated.

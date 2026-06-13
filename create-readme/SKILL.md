@@ -28,10 +28,9 @@ If codegraph isn't available, fall back to targeted file search; do not do broad
 1. Validate target path. Invalid: stop and ask.
 2. Read instruction entrypoint, existing README, only docs relevant to the README goal.
 3. Inspect manifests + commands: `package.json`, `pyproject.toml`, `requirements.txt`, Docker/compose, `.env.example`, Makefile/Taskfile, test config.
-4. Use codegraph or targeted search only to confirm entrypoints when needed.
-5. Write the README from evidence. Do not invent features, commands, architecture, or support promises.
+4. Write the README from evidence. Do not invent features, commands, architecture, or support promises.
 
-Web search only when the README depends on external behavior the repo can't verify. Prefer official documentation.
+When the README depends on external behavior the repo can't verify, query Context7 MCP first; fall back to web search only if Context7 lacks the library.
 
 ## Language
 

@@ -27,7 +27,7 @@ Fix stale references as part of the same task; surface contradictions in the out
 2. Read only docs targeted by the requested change.
 3. Use codegraph for structural facts (components, entrypoints, symbols, call flow, impact). Do not re-derive these in the docs themselves — codegraph already answers them on demand.
 4. Inspect manifests/runtime files only to verify commands, env vars, services, deps.
-5. Use official external docs only when framework/API behavior isn't verifiable from the repo.
+5. When framework/API behavior isn't verifiable from the repo, query Context7 MCP first; fall back to web search only if Context7 lacks it.
 
 ## Default `.agents/` layout
 
