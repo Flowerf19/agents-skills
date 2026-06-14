@@ -74,12 +74,36 @@ Update upstream: `cd ~/.claude/skills && git pull` (hoặc `git submodule update
 
 ```mermaid
 flowchart LR
-    IP([implementation-planner]) -->|plan duyệt: draft → in-progress| TC([thoughtful-coder])
-    TC -->|plan: done / abandoned| CR([code-reviewer])
-    CR -->|còn issue → sửa| TC
-    CR -->|đạt + doc impact| DOCS([architecture-docs / create-readme])
-    DOCS -.->|feature kế tiếp| IP
-    DI([debug-investigator]) -.->|khi có bug| TC
+    subgraph col1[" "]
+        direction TB
+        IP([implementation-planner])
+        DI([debug-investigator])
+    end
+
+    subgraph col2[" "]
+        direction TB
+        TC([thoughtful-coder])
+        CR([code-reviewer])
+    end
+
+    subgraph col3[" "]
+        direction TB
+        RM([create-readme])
+        AD([architecture-docs])
+    end
+
+    IP -->|plan approved| TC
+    DI -.->|handoff| TC
+    TC -->|PR ready| CR
+    CR -->|fix issues| TC
+    TC -.->|doc impact| RM
+    CR -->|approved| AD
+    AD <-->|sync docs| RM
+    AD -.->|next feature| IP
+
+    style col1 fill:none,stroke:none
+    style col2 fill:none,stroke:none
+    style col3 fill:none,stroke:none
 ```
 
 ## Cấu trúc `.agents/`
