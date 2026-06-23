@@ -31,6 +31,18 @@ mkdir -p .claude && ln -s ../.agents/skills .claude/skills    # Claude Code disc
 
 Update upstream: `cd ~/.claude/skills && git pull` (hoặc `git submodule update --remote .agents/skills`).
 
+## Cấu hình host (1 nguồn chung)
+
+[`agent.md`](agent.md) ở root repo là **operating guide chung, host-agnostic** — gói gọn cách làm việc (skills, handling feedback, orchestration, subagent dispatch + tự chọn model, MCP, CodeGraph). Thay vì copy rule vào từng tool, mỗi host chỉ cần file config native **trỏ về nó bằng 1 dòng**:
+
+| Host | File config native | Nội dung |
+|---|---|---|
+| Claude Code | `~/.claude/CLAUDE.md` | `Read & follow ~/.claude/skills/agent.md` |
+| Codex | `~/.codex/AGENTS.md` | `Read & follow ~/.claude/skills/agent.md` |
+| Antigravity / Gemini | `~/.gemini/GEMINI.md` | `Read & follow ~/.claude/skills/agent.md` |
+
+Sửa rule 1 lần ở `agent.md` → mọi host nhận cùng lúc. Không nhét instruction trực tiếp vào file native nữa. Model: `agent.md` chỉ định hướng theo **tier** (strongest / mid / lightest) để mỗi host tự map sang model của mình — không fix cứng tên model.
+
 ## Skills (6)
 
 | Skill | Khi dùng | Output |
