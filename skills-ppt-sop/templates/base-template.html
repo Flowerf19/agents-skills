@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Content Slide</title>
+<style>
+  :root {
+    --bg-main:#FFFFFF; --bg-header:#000000; --accent:#F85d42; --gray:#74788d;
+    --aux1:#556EE6; --aux2:#34c38f; --aux3:#50a5f1; --aux4:#f1b44c;
+    --gray-light:#F5F5F5; --page-bg:#e0e0e0;
+    --safe:40px; --col:60px; --gap:20px; --radius:8px; --header-h:60px;
+    --font:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  }
+  html,body{margin:0;background:var(--page-bg);font-family:var(--font);}
+  .stage{position:relative;width:960px;height:540px;overflow:hidden;background:var(--bg-main);color:#111;margin:0 auto;}
+  .header{height:var(--header-h);background:var(--bg-header);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 var(--safe);box-sizing:border-box;}
+  .header h2{font-size:24px;font-weight:700;margin:0;}
+  .header .tag{font-size:16px;font-weight:500;color:#cfcfcf;}
+  .body{position:absolute;top:calc(var(--header-h) + 20px);left:var(--safe);right:var(--safe);bottom:var(--safe);}
+  .grid{display:grid;grid-template-columns:repeat(12,var(--col));gap:var(--gap);}
+  .card{background:var(--gray-light);border-radius:var(--radius);padding:20px;box-sizing:border-box;}
+  .span-12{grid-column:span 12;} .span-8{grid-column:span 8;} .span-6{grid-column:span 6;}
+  .span-4{grid-column:span 4;} .span-3{grid-column:span 3;}
+  .card h3{font-size:20px;font-weight:600;margin:0 0 10px;}
+  .card p,.card li{font-size:16px;line-height:1.5;color:#333;margin:0 0 6px;}
+  ul{padding-left:18px;margin:0;}
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="header"><h2>{{SLIDE_TITLE}}</h2><span class="tag">{{SECTION_TAG}}</span></div>
+    <div class="body">
+      <div class="grid">
+        <!-- Fill cells with cards or paste components/* here. Example layout: -->
+        <div class="card span-6">
+          <h3>{{LEFT_HEADING}}</h3>
+          <ul>
+            <li>{{POINT_1}}</li>
+            <li>{{POINT_2}}</li>
+            <li>{{POINT_3}}</li>
+          </ul>
+        </div>
+        <div class="card span-6">
+          <h3>{{RIGHT_HEADING}}</h3>
+          <!-- e.g. drop components/bar-chart.html inner markup here -->
+          <p>{{RIGHT_BODY}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Table of Contents</title>
+<style>
+  :root {
+    --bg-main:#FFFFFF; --bg-header:#000000; --accent:#F85d42; --gray:#74788d;
+    --aux1:#556EE6; --aux2:#34c38f; --aux3:#50a5f1; --aux4:#f1b44c;
+    --gray-light:#F5F5F5; --page-bg:#e0e0e0;
+    --safe:40px; --radius:8px; --header-h:60px;
+    --font:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  }
+  html,body{margin:0;background:var(--page-bg);font-family:var(--font);}
+  .stage{position:relative;width:960px;height:540px;overflow:hidden;background:var(--bg-main);color:#111;margin:0 auto;}
+  .header{height:var(--header-h);background:var(--bg-header);color:#fff;display:flex;align-items:center;padding:0 var(--safe);box-sizing:border-box;}
+  .header h2{font-size:24px;font-weight:700;margin:0;}
+  .body{position:absolute;top:var(--header-h);left:var(--safe);right:var(--safe);bottom:var(--safe);}
+  .toc-row{height:60px;display:flex;align-items:center;border-bottom:1px solid var(--gray-light);}
+  .num{width:40px;height:40px;border-radius:8px;background:var(--accent);color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-right:20px;flex:0 0 auto;}
+  .label{font-size:20px;font-weight:600;color:#111;}
+  .meta{margin-left:auto;font-size:16px;color:var(--gray);}
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="header"><h2>Contents</h2></div>
+    <div class="body">
+      <div class="toc-row"><div class="num">1</div><div class="label">{{SECTION_1}}</div><div class="meta">{{PAGE_1}}</div></div>
+      <div class="toc-row"><div class="num">2</div><div class="label">{{SECTION_2}}</div><div class="meta">{{PAGE_2}}</div></div>
+      <div class="toc-row"><div class="num">3</div><div class="label">{{SECTION_3}}</div><div class="meta">{{PAGE_3}}</div></div>
+      <div class="toc-row"><div class="num">4</div><div class="label">{{SECTION_4}}</div><div class="meta">{{PAGE_4}}</div></div>
+      <div class="toc-row"><div class="num">5</div><div class="label">{{SECTION_5}}</div><div class="meta">{{PAGE_5}}</div></div>
+    </div>
+  </div>
+</body>
+</html>
