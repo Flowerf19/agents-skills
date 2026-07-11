@@ -54,6 +54,8 @@ Two modes:
 
 Use `codegraph_callers` on changed functions to confirm no downstream caller was silently broken.
 
+**Coverage first, filtering later.** Report every issue you find, including ones you are uncertain about or consider low-severity — do not self-filter for importance at the finding stage. It is better to surface a finding that gets dismissed than to silently drop a real bug. The severity label (below) is how downstream filtering happens; attach your confidence when uncertain.
+
 ## Output
 
 Per issue:

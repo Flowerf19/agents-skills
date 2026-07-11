@@ -32,7 +32,7 @@ Identify which slide types are needed:
 
 ### Step 2 — Load templates
 
-**MANDATORY — READ ENTIRE FILE:** before proceeding you MUST read `references/templates-guide.md` completely.
+Read `references/templates-guide.md` in full before proceeding.
 
 For each slide type, load the corresponding template:
 
@@ -44,7 +44,7 @@ For each slide type, load the corresponding template:
 
 ### Step 3 — Integrate components
 
-**MANDATORY — READ ENTIRE FILE:** for data visualization you MUST read `references/components-guide.md` completely.
+For data visualization, read `references/components-guide.md` in full first.
 
 Copy component HTML from the `components/` directory:
 

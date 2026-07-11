@@ -10,7 +10,7 @@ Use this skill to make code changes. Optimise in this order: Correctness → Min
 
 - If `.agents/` is missing, run the `architecture-docs` skill first.
 - Read instruction entrypoints only: `AGENTS.md`, `CLAUDE.md`, `.agents/README.md`, `.github/copilot-instructions.md`.
-- Use codegraph for structure (definitions, callers/callees, impact, feature context). Read source only after codegraph identifies the target file.
+- Prefer codegraph for structural questions (definitions, callers/callees, impact, feature context) — it answers them cheaper than reading files. Read source once you know where to look.
 - Verify runtime constraints from manifests: language version, deps, Docker, env vars, framework conventions.
 - For external API/library tasks, query Context7 MCP first; fall back to web search only if Context7 lacks the library.
 
@@ -23,6 +23,7 @@ Each rule below guards a known LLM failure mode — silent assumptions, overengi
 - Do not rename unrelated symbols, reformat unrelated files, or add formatters/linters/deps without an explicit ask.
 - Add focused tests when behavior changes.
 - Ask only when ambiguity affects correctness; otherwise pick a safe default and state it.
+- Comment dev-style: a single short comment line (`#`/`//` per language) directly above the one statement it explains — never a paragraph block narrating a whole section. Comment only lines that need it.
 
 ## Flow
 
@@ -53,8 +54,7 @@ Do not rewrite broad docs in the same coding task — defer to the relevant skil
 
 ## Response shape
 
-Non-trivial: Understanding & assumptions → Approach → Implementation → Verification → Notes.
-Trivial: short summary + verification.
+Lead with the outcome: what changed and whether it's verified, in the first sentence. Then supporting detail — approach, assumptions, notes — for readers who want it. Trivial changes: one-line summary + verification.
 
 ## Final check
 

@@ -17,6 +17,14 @@ Hosts with native skill discovery load these automatically (e.g. via a Skill too
 
 Update upstream: `cd ~/.claude/skills && git pull`.
 
+## Verify before concluding
+
+A guess is not a conclusion. Assert as fact only with evidence (logs, test output, `file:line`, codegraph). Inference from chat/memory/prior turns is a **hypothesis** — verify it first, or mark it explicitly unverified. Logs-first for runtime claims; reading chat prose is not evidence of what code did. When caught guessing, correct with the real output and move on — don't justify it.
+
+## Output
+
+Say what matters and stop: the outcome, plus issues that actually affect the user. No padding, no tangents, no exhaustive surveys — expand only when asked.
+
 ## Handling feedback (from user or reviewer)
 
 When you receive feedback:
@@ -36,8 +44,19 @@ For non-trivial tasks, act as a coordinator: plan and delegate to specialized su
 
 When you delegate to a subagent:
 
+- **When to delegate**: delegate subtasks that are independent or parallelizable (fan-out across files/items, an isolated investigation, a verification pass) and keep working while they run — don't block on each one. Do it yourself when briefing an agent costs more than the task (a quick read, a small sequential edit). For verification, prefer a fresh-context verifier subagent over self-critique — it catches what the author-context misses.
+
 - **Pass a skill**: Name the relevant skill in the subagent's prompt so it follows the right playbook — e.g. "Use `debug-investigator` to find the root cause", "Use `thoughtful-coder` for the fix", "Use `code-reviewer` to review the diff". The subagent loads it from `~/.claude/skills/<name>/SKILL.md`. Match the skill to the job, not the other way around.
-- **Self-assess the model — never hardcode a skill→model map**: Judge each dispatch on reasoning depth, ambiguity, blast radius (how much breaks if the output is wrong), and breadth of context needed. Then pick the *cheapest model that can do it reliably* — deep reasoning / architecture / root-cause / security-sensitive review lean to your strongest model; well-scoped work against a clear plan sits mid-tier; mechanical, templated, lookup, or formatting work goes to the lightest/fastest model. When genuinely unsure, inherit the session model instead of guessing.
+- **Self-assess the model — never hardcode a skill→model map**: Judge each dispatch on reasoning depth, ambiguity, blast radius (how much breaks if the output is wrong), and breadth of context needed. Then pick the *cheapest tier that can do it reliably*. When genuinely unsure, default to the strong tier rather than inheriting — inheriting silently sends every subagent to the main-loop model and wastes the light tier.
+- **Always pass an explicit `model` tier — never omit it.** Omitting `model` (or `inherit`) routes the subagent to the main-loop model — the most expensive tier — so every "light" task silently runs on it. That is the failure mode to avoid. Map task → tier (tier→actual-model is configured per host in settings env, never named here):
+  - **`haiku` (light)** — mechanical, templated, lookup, formatting, narrow single-file edits, short-context verify (skeptic on one claim, grep, fetch-one). The light tier usually has a smaller context window → keep these tasks short; if a task may exceed it, bump to the strong tier.
+  - **`sonnet` (strong — default for substantive subagent work)** — coding, routine review, planning, investigation, synthesis, multi-file context. When genuinely unsure between light and strong, pick this.
+  - **`opus` (escalation — use only when a criterion below applies)**:
+    1. Deep multi-file reasoning or long-horizon work the strong tier handles poorly.
+    2. Security-sensitive review or high blast radius (much breaks if the output is wrong).
+    3. Retry: the strong tier already failed once on this task — escalate instead of re-running it.
+  - The main-loop model is the orchestrator; never dispatch subagents on it.
+  - In workflows: `agent(prompt, {model: "haiku"})` for narrow/mechanical stages (find, verify-one, grep, format), `agent(prompt, {model: "sonnet"})` for reasoning/synthesis stages, `agent(prompt, {model: "opus"})` only per the escalation criteria. **Never omit `model` in an `agent()` call.**
 - **Mechanism**: use your host's model-override for the dispatch (e.g. an Agent tool's `model` param, or `agent(prompt, {model, agentType})` in a workflow). The *same* skill may run under different models on different dispatches — the model follows the task, not the skill.
 
 ## MCP
