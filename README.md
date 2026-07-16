@@ -43,16 +43,14 @@ Update upstream: `cd ~/.claude/skills && git pull` (hoặc `git submodule update
 
 Sửa rule 1 lần ở `agent.md` → mọi host nhận cùng lúc. Không nhét instruction trực tiếp vào file native nữa. Model: `agent.md` chỉ định hướng theo **tier** (strongest / mid / lightest) để mỗi host tự map sang model của mình — không fix cứng tên model.
 
-## Skills (6)
+## Skills (4)
 
 | Skill | Khi dùng | Output |
 |---|---|---|
 | [`implementation-planner`](implementation-planner/SKILL.md) | Trước khi code feature/bug/refactor lớn | `.agents/plans/<slug>.md` với `status:` lifecycle (draft/in-progress/done/abandoned) |
-| [`thoughtful-coder`](thoughtful-coder/SKILL.md) | Mỗi code change | Diff tối thiểu + Documentation impact block + plan close-out |
-| [`debug-investigator`](debug-investigator/SKILL.md) | Khi có bug, test fail, perf regression | Root cause + handoff sang `thoughtful-coder` |
+| [`thoughtful-coder`](thoughtful-coder/SKILL.md) | Mỗi code change (feature/refactor) hoặc bug fix | Diff tối thiểu + Documentation impact block + plan close-out; với bug: root cause 1 câu (cause→effect) + failing test trước khi fix |
 | [`code-reviewer`](code-reviewer/SKILL.md) | Sau `thoughtful-coder`, trước merge | Issue list Critical/Important/Minor + verdict |
-| [`architecture-docs`](architecture-docs/SKILL.md) | Sau arch change lớn / refactor đụng nhiều file | `.agents/{README,PROJECT_CONTEXT,AGENT_RULES,TESTING_GUIDE}.md`, audit stale references trước khi sửa |
-| [`create-readme`](create-readme/SKILL.md) | README dự án thiếu hoặc stale | Root `README.md` từ evidence (manifests, docker, entrypoints) |
+| [`architecture-docs`](architecture-docs/SKILL.md) | Sau arch change lớn / refactor đụng nhiều file, hoặc khi README thiếu/stale | `.agents/{README,PROJECT_CONTEXT,AGENT_RULES,TESTING_GUIDE}.md` và root `README.md`, audit stale references trước khi sửa |
 
 ## Cách dùng
 
@@ -66,7 +64,7 @@ Sửa rule 1 lần ở `agent.md` → mọi host nhận cùng lúc. Không nhét
 /code-reviewer HEAD~1..HEAD
 ```
 
-**Codex / Antigravity / Cursor / agent khác** — không có slash-command discovery. Trỏ agent đọc `~/.claude/skills/<name>/SKILL.md` và follow procedural instruction trong body. Ví dụ với Cursor: attach file `~/.claude/skills/debug-investigator/SKILL.md` vào context rồi mô tả bug.
+**Codex / Antigravity / Cursor / agent khác** — không có slash-command discovery. Trỏ agent đọc `~/.claude/skills/<name>/SKILL.md` và follow procedural instruction trong body. Ví dụ với Cursor: attach file `~/.claude/skills/thoughtful-coder/SKILL.md` vào context rồi mô tả bug.
 
 ### Ví dụ cụ thể mỗi skill
 
@@ -75,10 +73,9 @@ Sửa rule 1 lần ở `agent.md` → mọi host nhận cùng lúc. Không nhét
 | `implementation-planner` | `"Thêm rate limiting vào API gateway"` | `.agents/plans/rate-limiting.md` — GOAL/TASK IDs, completion ledger `\| ID \| Task \| Done \| Date \|`, YAML header `status: draft` |
 | `implementation-planner` _(update)_ | `"Scope thay đổi: bỏ Redis, dùng in-memory"` | Plan cũ được update in-place — task cũ giữ nguyên ID, task mới append ID tiếp theo, task bị thay thế gạch chân với lý do |
 | `thoughtful-coder` | `"Implement TASK-003 trong plan rate-limiting"` | Diff tối thiểu + Documentation impact block + tick ✅ TASK-003 trong ledger |
-| `debug-investigator` | Stack trace `KeyError: 'user_id'` trong `handler.py:142` | Root cause 1 câu (cause→effect) + failing test + handoff sang `thoughtful-coder` |
+| `thoughtful-coder` _(bug)_ | Stack trace `KeyError: 'user_id'` trong `handler.py:142` | Root cause 1 câu (cause→effect) + failing test + surgical fix (diff tối thiểu) |
 | `code-reviewer` | `git diff origin/main..HEAD` hoặc PR number | Danh sách issue phân loại Critical/Important/Minor + verdict `Approve / Approve with fixes / Request changes` |
-| `architecture-docs` | `"Refresh .agents/ sau khi refactor memory module"` | `.agents/README.md`, `PROJECT_CONTEXT.md`, `AGENT_RULES.md`, `TESTING_GUIDE.md` — stale references đã audit và fix |
-| `create-readme` | `"Viết README cho repo này"` | `README.md` từ manifests, docker, entrypoints — không file dump, không codegraph duplication |
+| `architecture-docs` | `"Refresh .agents/ sau khi refactor memory module"` hoặc `"Viết README cho repo này"` | `.agents/README.md`, `PROJECT_CONTEXT.md`, `AGENT_RULES.md`, `TESTING_GUIDE.md` và/hoặc root `README.md` — stale references đã audit và fix |
 
 > **Tip:** `implementation-planner` hỗ trợ cả tạo plan mới lẫn update plan hiện có. IDs (`TASK-`, `GOAL-`) append-only — không bao giờ đánh số lại.
 
@@ -89,7 +86,6 @@ flowchart LR
     subgraph col1[" "]
         direction TB
         IP([implementation-planner])
-        DI([debug-investigator])
     end
 
     subgraph col2[" "]
@@ -100,17 +96,14 @@ flowchart LR
 
     subgraph col3[" "]
         direction TB
-        RM([create-readme])
         AD([architecture-docs])
     end
 
     IP -->|plan approved| TC
-    DI -.->|handoff| TC
     TC -->|PR ready| CR
     CR -->|fix issues| TC
-    TC -.->|doc impact| RM
+    TC -.->|doc impact| AD
     CR -->|approved| AD
-    AD <-->|sync docs| RM
     AD -.->|next feature| IP
 
     style col1 fill:none,stroke:none
@@ -163,4 +156,4 @@ PR welcome. Trước khi propose skill mới, check 2 câu hỏi:
 1. Có thể nhét vào skill cũ qua 1 section (10-20 dòng) không?
 2. Pain có recurring + workflow khác hẳn skill hiện tại không?
 
-Cả 2 trả lời CÓ → skill mới. Còn lại → tinh skill cũ. Sweet spot là 6 skill — thêm nữa thì noise vs signal xấu đi.
+Cả 2 trả lời CÓ → skill mới. Còn lại → tinh skill cũ. Sweet spot là 4 skill — thêm nữa thì noise vs signal xấu đi.

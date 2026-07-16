@@ -7,11 +7,9 @@ Shared, host-agnostic operating instructions for any coding agent working in the
 Curated skills live at `~/.claude/skills/` (clone of [Flowerf19/agents-skills](https://github.com/Flowerf19/agents-skills)) — apply to every project, every agent.
 
 - `implementation-planner` — turn spec/feature/bug into execution-ready plan (BEFORE writing code).
-- `thoughtful-coder` — surgical code changes: Correctness → Minimal diff → Consistency → Verifiable → Simplicity.
-- `debug-investigator` — root-cause investigation BEFORE any fix. Iron law: no patch until cause is identified.
+- `thoughtful-coder` — surgical code changes + root-cause bug investigation before any fix: Correctness → Minimal diff → Consistency → Verifiable → Simplicity.
 - `code-reviewer` — independent review of a change after `thoughtful-coder` completes; before merge.
-- `architecture-docs` — maintain/refresh `.agents/` docs after architectural changes.
-- `create-readme` — write/update root README from real repo evidence.
+- `architecture-docs` — maintain/refresh `.agents/` docs and root `README.md` after architectural changes.
 
 Hosts with native skill discovery load these automatically (e.g. via a Skill tool or `/<skill-name>`). Hosts without it should read `~/.claude/skills/<name>/SKILL.md` directly.
 
@@ -20,6 +18,8 @@ Update upstream: `cd ~/.claude/skills && git pull`.
 ## Verify before concluding
 
 A guess is not a conclusion. Assert as fact only with evidence (logs, test output, `file:line`, codegraph). Inference from chat/memory/prior turns is a **hypothesis** — verify it first, or mark it explicitly unverified. Logs-first for runtime claims; reading chat prose is not evidence of what code did. When caught guessing, correct with the real output and move on — don't justify it.
+
+Before proceeding, ask the user to resolve any decision, ambiguity, or requirement whose answer materially affects scope, behavior, or implementation; never silently choose it.
 
 ## Output
 
@@ -38,7 +38,7 @@ When you receive feedback:
 
 ## Orchestration
 
-For non-trivial tasks, act as a coordinator: plan and delegate to specialized subagents (`implementation-planner`, `thoughtful-coder`, `debug-investigator`, `code-reviewer`, `architecture-docs`, `create-readme`) rather than doing everything in one context. Manage context across them and merge their outputs. Keep each subagent's job narrow; chain them in sequence (plan → code → review) instead of overloading a single context.
+For non-trivial tasks, act as a coordinator: plan and delegate to specialized subagents (`implementation-planner`, `thoughtful-coder`, `code-reviewer`, `architecture-docs`) rather than doing everything in one context. Manage context across them and merge their outputs. Keep each subagent's job narrow; chain them in sequence (plan → code → review) instead of overloading a single context.
 
 ## Subagents
 
@@ -46,18 +46,8 @@ When you delegate to a subagent:
 
 - **When to delegate**: delegate subtasks that are independent or parallelizable (fan-out across files/items, an isolated investigation, a verification pass) and keep working while they run — don't block on each one. Do it yourself when briefing an agent costs more than the task (a quick read, a small sequential edit). For verification, prefer a fresh-context verifier subagent over self-critique — it catches what the author-context misses.
 
-- **Pass a skill**: Name the relevant skill in the subagent's prompt so it follows the right playbook — e.g. "Use `debug-investigator` to find the root cause", "Use `thoughtful-coder` for the fix", "Use `code-reviewer` to review the diff". The subagent loads it from `~/.claude/skills/<name>/SKILL.md`. Match the skill to the job, not the other way around.
-- **Self-assess the model — never hardcode a skill→model map**: Judge each dispatch on reasoning depth, ambiguity, blast radius (how much breaks if the output is wrong), and breadth of context needed. Then pick the *cheapest tier that can do it reliably*. When genuinely unsure, default to the strong tier rather than inheriting — inheriting silently sends every subagent to the main-loop model and wastes the light tier.
-- **Always pass an explicit `model` tier — never omit it.** Omitting `model` (or `inherit`) routes the subagent to the main-loop model — the most expensive tier — so every "light" task silently runs on it. That is the failure mode to avoid. Map task → tier (tier→actual-model is configured per host in settings env, never named here):
-  - **`haiku` (light)** — mechanical, templated, lookup, formatting, narrow single-file edits, short-context verify (skeptic on one claim, grep, fetch-one). The light tier usually has a smaller context window → keep these tasks short; if a task may exceed it, bump to the strong tier.
-  - **`sonnet` (strong — default for substantive subagent work)** — coding, routine review, planning, investigation, synthesis, multi-file context. When genuinely unsure between light and strong, pick this.
-  - **`opus` (escalation — use only when a criterion below applies)**:
-    1. Deep multi-file reasoning or long-horizon work the strong tier handles poorly.
-    2. Security-sensitive review or high blast radius (much breaks if the output is wrong).
-    3. Retry: the strong tier already failed once on this task — escalate instead of re-running it.
-  - The main-loop model is the orchestrator; never dispatch subagents on it.
-  - In workflows: `agent(prompt, {model: "haiku"})` for narrow/mechanical stages (find, verify-one, grep, format), `agent(prompt, {model: "sonnet"})` for reasoning/synthesis stages, `agent(prompt, {model: "opus"})` only per the escalation criteria. **Never omit `model` in an `agent()` call.**
-- **Mechanism**: use your host's model-override for the dispatch (e.g. an Agent tool's `model` param, or `agent(prompt, {model, agentType})` in a workflow). The *same* skill may run under different models on different dispatches — the model follows the task, not the skill.
+- **Pass a skill**: Name the relevant skill in the subagent's prompt so it follows the right playbook — e.g. "Use `thoughtful-coder` to investigate the bug and fix it", "Use `code-reviewer` to review the diff". Also pass the skill file through the host's supported attachment or context mechanism when one exists. Do not assume every host has Claude's automatic loader; the shared source is `~/.claude/skills/<name>/SKILL.md`.
+- **Dispatch through the host's native mechanism**: use only the agent interface and fields exposed by the current host. Do not copy one host's function signature or configuration assumptions to another.
 
 ## MCP
 
