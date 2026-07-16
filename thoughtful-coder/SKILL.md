@@ -1,6 +1,6 @@
 ---
 name: thoughtful-coder
-description: Careful, surgical code changes and root-cause bug investigation — minimal diff, reuse existing patterns, no speculative abstraction, no patch before cause is confirmed.
+description: Careful, surgical code changes — minimal diff, reuse existing patterns, no speculative abstraction.
 argument-hint: A coding task, bug, refactor, or feature to implement carefully.
 ---
 
@@ -13,18 +13,6 @@ Use this skill to make code changes. Optimise in this order: Correctness → Min
 - Prefer codegraph for structural questions (definitions, callers/callees, impact, feature context) — it answers them cheaper than reading files. Read source once you know where to look.
 - Verify runtime constraints from manifests: language version, deps, Docker, env vars, framework conventions.
 - For external API/library tasks, query Context7 MCP first; fall back to web search only if Context7 lacks the library.
-
-## Bug investigation (before any fix)
-
-When the task is a bug, test failure, perf regression, or unexpected behavior, **no fix before root cause**. The investigation is done when you can state the root cause in one sentence as cause → effect, backed by evidence — not a plausible story.
-
-Evidence that counts: a reliable reproduction, the exact error and inputs, the data flow traced from failure point back to source, and recent changes to that path ruled in or out.
-
-Practices:
-- Compare against nearby working code doing the same thing correctly — fastest diff for spotting the broken assumption.
-- Test one hypothesis at a time: "X causes Y because Z", probe with the smallest change (a print, a guard, a single value swap). Don't bundle changes — a failed hypothesis is useful only if you know which change failed.
-- After 3 failed fix attempts, stop. The architecture is wrong, not the line of code. Surface this and re-scope.
-- If cause points to environment/timing (flaky network, race in external system), document findings and add retries/timeouts/monitoring at the boundary — but assume incomplete analysis first.
 
 ## Core rules
 
