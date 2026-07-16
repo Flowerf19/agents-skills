@@ -1,44 +1,36 @@
 ---
 name: debug-investigator
-description: Systematically investigate the root cause of a bug, test failure, or unexpected behavior before any fix.
+description: Systematically investigate the root cause of a bug, test failure, performance issue, or unexpected behavior before any fix.
 argument-hint: Bug description, failing test, error message, or unexpected behavior.
 ---
 
-Use this skill the moment a bug, test failure, perf issue, or unexpected behavior appears. Investigation only — do not change code yet. Hand off to `thoughtful-coder` once root cause is confirmed.
+Investigation only; do not change production code. Hand off to `thoughtful-coder` after root cause is confirmed.
 
-## Iron Law
+## Iron law
 
-**No fixes without root-cause investigation first.** Symptom patches waste time and mask deeper bugs — this applies even under time pressure, even when a fix looks "obvious", and especially when previous fixes didn't stick. The investigation is done when you can state the root cause in one sentence as cause→effect, backed by evidence — not before.
+**No fix before root cause.** This holds even under time pressure, even when a fix looks "obvious", and especially when previous fixes didn't stick. Investigation is complete when one cause-and-effect statement explains the failure and is backed by evidence — not before.
 
-## Investigation
+## Workflow
 
-The goal is a root cause you can defend with evidence, not a plausible story. What counts as evidence: a reliable reproduction, the exact error and inputs, the data flow traced from failure point back to source, and recent changes to that path ruled in or out. If you can't reproduce it, you can't claim to have fixed it.
+1. Reproduce reliably and capture the exact error, inputs, and environment.
+2. Trace data/control flow from the failure back to its source; check recent changes and affected callers.
+3. Compare with a nearby working path to isolate the broken assumption.
+4. Test one explicit hypothesis at a time with the smallest probe. Record what each probe confirms or rules out.
+5. State the root cause, evidence, blast radius, and smallest correction point.
 
-Choose your own tools and order — codegraph for callers/impact, git history, logs, instrumentation, whatever the bug calls for. Two practices are worth keeping regardless of approach:
-
-- **Compare against working code.** A nearby function or path that does the same thing correctly is the fastest diff for spotting the broken assumption — config, types, ordering, error handling. Small differences matter.
-- **Test one hypothesis at a time.** State it as "X causes Y because Z" and probe it with the smallest possible change (a print, a guard, a single value swap). Don't bundle changes — a failed hypothesis is useful data only if you know which change failed. Admit uncertainty rather than guessing.
-
-## Hand off
-
-Once root cause is confirmed:
-
-1. Write a failing test that captures the bug.
-2. Hand the root cause + test to `thoughtful-coder` for the surgical fix.
-3. After the fix lands, re-run the full test suite (not just the new test) — verify nothing else broke.
+Provide a failing test or minimal reproduction when feasible, then pass it with the root-cause evidence to `thoughtful-coder`. After the fix, verify both the reproduction and the relevant full test suite.
 
 ## Red flags — stop and restart the investigation
 
-- "Quick fix for now, refactor later"
-- Trying random changes hoping one sticks
-- Bundling multiple edits in one attempt
-- Skipping the failing test
-- Proposing a fix before tracing data flow
+- "Quick fix for now, refactor later."
+- Trying random changes hoping one sticks.
+- Bundling multiple edits in one attempt.
+- Proposing a fix before tracing data flow.
 
 ## Circuit breaker
 
-After **3 failed fix attempts**, stop. The architecture is wrong, not the line of code. Surface this to the user and re-scope.
+After three failed hypotheses or fix attempts, stop — the architecture may be wrong, not the line of code. Surface this to the user and re-scope before trying another patch.
 
-## No-root-cause case
+## Environment or timing failures
 
-If the cause genuinely points to environment/timing (flaky network, race in external system), document findings and add **retries / timeouts / monitoring** at the boundary — but assume incomplete analysis first.
+If evidence points to environment or timing, document the boundary failure and recommend targeted retries, timeouts, or monitoring without claiming certainty beyond the evidence.

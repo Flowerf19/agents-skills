@@ -6,7 +6,7 @@ Bộ skill toàn cục cho AI coding agents (Claude Code, Antigravity, Gemini, C
 
 Skills giả định 2 thứ có sẵn trong project:
 
-1. **CodeGraph MCP** — index AST cho mọi câu hỏi structural. Skills sẽ delegate `codegraph_search`, `codegraph_callers`, `codegraph_impact`, `codegraph_context` thay vì grep/read thủ công.
+1. **CodeGraph MCP** — index AST cho mọi câu hỏi structural. Skills sẽ delegate `codegraph_explore` (hoặc CLI `codegraph explore`) thay vì grep/read thủ công.
    ```bash
    npm install -g @colbymchenry/codegraph
    codegraph init -i      # 1 lần mỗi repo, tạo .codegraph/
@@ -33,15 +33,15 @@ Update upstream: `cd ~/.claude/skills && git pull` (hoặc `git submodule update
 
 ## Cấu hình host (1 nguồn chung)
 
-[`agent.md`](agent.md) ở root repo là **operating guide chung, host-agnostic** — gói gọn cách làm việc (skills, handling feedback, orchestration, subagent dispatch + tự chọn model, MCP, CodeGraph). Thay vì copy rule vào từng tool, mỗi host chỉ cần file config native **trỏ về nó bằng 1 dòng**:
+[`AGENTS.md`](AGENTS.md) ở root repo là **operating guide chung, host-agnostic** (đặt tên theo [chuẩn AGENTS.md](https://agents.md)) — gói gọn cách làm việc (skills, handling feedback, orchestration, subagent dispatch + tự chọn model, MCP, CodeGraph). Thay vì copy rule vào từng tool, mỗi host chỉ cần file config native **trỏ về nó bằng 1 dòng**:
 
 | Host | File config native | Nội dung |
 |---|---|---|
-| Claude Code | `~/.claude/CLAUDE.md` | `Read & follow ~/.claude/skills/agent.md` |
-| Codex | `~/.codex/AGENTS.md` | `Read & follow ~/.claude/skills/agent.md` |
-| Antigravity / Gemini | `~/.gemini/GEMINI.md` | `Read & follow ~/.claude/skills/agent.md` |
+| Claude Code | `~/.claude/CLAUDE.md` | `Read & follow ~/.claude/skills/AGENTS.md` |
+| Codex | `~/.codex/AGENTS.md` | `Read & follow ~/.claude/skills/AGENTS.md` |
+| Antigravity / Gemini | `~/.gemini/GEMINI.md` | `Read & follow ~/.claude/skills/AGENTS.md` |
 
-Sửa rule 1 lần ở `agent.md` → mọi host nhận cùng lúc. Không nhét instruction trực tiếp vào file native nữa. Model: `agent.md` chỉ định hướng theo **tier** (strongest / mid / lightest) để mỗi host tự map sang model của mình — không fix cứng tên model.
+Sửa rule 1 lần ở `AGENTS.md` → mọi host nhận cùng lúc. Không nhét instruction trực tiếp vào file native nữa. Model: `AGENTS.md` chỉ định hướng theo **tier** (light / strong / top) để mỗi host tự map sang model của mình — không fix cứng tên model.
 
 ## Skills (5)
 
@@ -84,34 +84,14 @@ Sửa rule 1 lần ở `agent.md` → mọi host nhận cùng lúc. Không nhét
 
 ```mermaid
 flowchart LR
-    subgraph col1[" "]
-        direction TB
-        IP([implementation-planner])
-        DI([debug-investigator])
-    end
-
-    subgraph col2[" "]
-        direction TB
-        TC([thoughtful-coder])
-        CR([code-reviewer])
-    end
-
-    subgraph col3[" "]
-        direction TB
-        AD([architecture-docs])
-    end
-
-    IP -->|plan approved| TC
-    DI -.->|handoff| TC
-    TC -->|PR ready| CR
+    %% giữ thứ tự khai báo này — DI trước IP thì layout không có cạnh cắt nhau
+    DI([debug-investigator]) -.->|handoff| TC([thoughtful-coder])
+    IP([implementation-planner]) -->|plan approved| TC
+    TC -->|PR ready| CR([code-reviewer])
     CR -->|fix issues| TC
+    CR -->|approved| AD([architecture-docs])
     TC -.->|doc impact| AD
-    CR -->|approved| AD
     AD -.->|next feature| IP
-
-    style col1 fill:none,stroke:none
-    style col2 fill:none,stroke:none
-    style col3 fill:none,stroke:none
 ```
 
 ## Cấu trúc `.agents/`

@@ -4,69 +4,43 @@ description: Create and maintain concise project architecture and agent guidance
 argument-hint: Project path, architecture-docs goal, or docs to sync.
 ---
 
-Use this skill to create or refresh `.agents/` guidance docs, architecture docs, and the root `README.md` from current repo evidence. Documentation-only — do not edit runtime code, tests, configs, Docker, or deps. If fixing docs reveals a code issue, mention it as a follow-up.
+Documentation-only: create or refresh `.agents/` guidance, architecture docs, and root `README.md`. Do not edit runtime code, tests, configs, Docker, or dependencies. Report code issues as follow-ups.
 
-## Audit before write
+## Workflow
 
-Before refreshing or rewriting docs, scan for staleness — drift between docs and current code is the most common doc bug:
-
-1. List all markdown under `.agents/` and root-level docs (`README*.md`, `CLAUDE.md`).
-2. Extract every `file/path.ext`, symbol name, env var, and command mentioned.
-3. Cross-check against reality:
-   - File path → `ls` / `codegraph_files`
-   - Symbol → `codegraph_search`
-   - Env var → grep `.env.example` / `Config` class
-   - Command → run `--help` or verify the script exists
-4. Flag stale references and contradictions across files (same fact, different values).
-
-Fix stale references as part of the same task; surface contradictions in the output report.
-
-## Evidence workflow
-
-1. Read instruction entrypoints first: `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`, `.agents/README.md`.
-2. Read only docs targeted by the requested change.
-3. Use codegraph for structural facts (components, entrypoints, symbols, call flow, impact). Do not re-derive these in the docs themselves — codegraph already answers them on demand.
-4. Inspect manifests/runtime files only to verify commands, env vars, services, deps.
-5. When framework/API behavior isn't verifiable from the repo, query Context7 MCP first; fall back to web search only if Context7 lacks it.
+1. Read project instruction entrypoints and only the docs in scope.
+2. Audit those docs for stale paths, symbols, env vars, commands, and contradictory claims.
+3. Verify each claim against repo evidence using the shared tool rules in `~/.claude/skills/AGENTS.md`; run `--help` or tests when command behavior matters.
+4. Update the smallest set of docs that restores consistency. Avoid copying the same fact into multiple files.
 
 ## Default `.agents/` layout
 
-- `README.md` — index, read order, codegraph policy, critical boundaries.
-- `PROJECT_CONTEXT.md` — runtime modes, architecture boundaries, memory tiers, key env vars.
-- `AGENT_RULES.md` — safety, workflow, style, PR hygiene, verified gotchas.
-- `TESTING_GUIDE.md` — test layout, commands, service dependencies.
+- `README.md` - index, read order, critical boundaries.
+- `PROJECT_CONTEXT.md` - runtime modes, architecture boundaries, key env vars.
+- `AGENT_RULES.md` - safety, workflow, style, verified gotchas.
+- `TESTING_GUIDE.md` - test layout, commands, service dependencies.
 
-Extra subfolders allowed when a real recurring need exists:
-- `plans/` — implementation plans (active or recently finished, with `status:` field).
-- `decisions/` — ADR-style records of accepted architectural decisions.
-- `runbooks/` — operational procedures triggered repeatedly (incident response, release).
+Add subfolders only for a recurring need:
 
-Trigger threshold: ≥3 files of the same shape, or an operation repeated on a schedule. Do not pre-create empty subfolders.
+- `plans/` - implementation plans with lifecycle status.
+- `decisions/` - accepted architectural decisions.
+- `runbooks/` - repeated operational procedures.
 
-## What belongs in docs
+Threshold: at least three files of the same shape, or a scheduled repeated operation. Never pre-create empty folders.
 
-- Exact commands and paths.
-- Runtime/service ownership boundaries.
-- Security constraints and known high-risk tools.
-- Env var names and verified defaults when useful.
-- Testing and verification guidance.
-- Decisions or gotchas not obvious from code.
+## Content boundary
 
-## What to skip (codegraph territory)
+Document exact commands and paths, ownership boundaries, security constraints, useful env vars, test guidance, and non-obvious decisions. Skip symbol inventories, exhaustive trees, call graphs, speculative architecture, marketing copy, TODO/TBD placeholders, and duplicated explanations.
 
-- Symbol inventories, file structure dumps, caller/callee chains, class hierarchies.
-- Speculative future architecture, marketing language, TODO/TBD, duplicated explanations across files.
+## Root README
 
-## README
-
-When the task targets the root `README.md`:
-
-- Match the user's request; otherwise match the dominant language of existing docs. Preserve identifiers, commands, env vars, and file paths exactly.
-- 500–700 words target, hard max 1000 unless the user asks for more.
-- Default sections: Title + value proposition, key features, architecture overview (Mermaid only when confirmed and clarifying), project structure (high-level pointer, not exhaustive), prerequisites, quick start, configuration, development/testing, troubleshooting.
-- Do not invent features, commands, architecture, or support promises. Ground every claim in manifests, entrypoints, CLI help, or targeted code.
-- GitHub admonitions sparingly for warnings/tips only.
+- Match the requested language; otherwise use the repo's dominant documentation language.
+- Preserve identifiers, commands, env vars, and paths exactly.
+- Target 500-700 words; hard max 1000 unless the user asks for more.
+- Include only sections supported by repo evidence: purpose, key features, architecture overview, prerequisites, quick start, configuration, development/testing, troubleshooting.
+- Use Mermaid only when the confirmed architecture is clearer with it.
+- Do not invent features, commands, or support promises.
 
 ## Output
 
-Report docs changed, evidence used, key decisions, known gaps, suggested follow-ups. Concise.
+Report docs changed, decisive evidence, contradictions fixed, and remaining gaps.
