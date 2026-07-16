@@ -1,10 +1,10 @@
 ---
 name: architecture-docs
-description: Create and maintain concise project architecture and agent guidance docs based on real repository evidence.
+description: Create and maintain concise project architecture and agent guidance docs and root README files based on real repository evidence.
 argument-hint: Project path, architecture-docs goal, or docs to sync.
 ---
 
-Use this skill to create or refresh `.agents/` guidance docs from current repo evidence. Documentation-only — do not edit runtime code, tests, configs, Docker, or deps. If fixing docs reveals a code issue, mention it as a follow-up.
+Use this skill to create or refresh `.agents/` guidance docs, architecture docs, and the root `README.md` from current repo evidence. Documentation-only — do not edit runtime code, tests, configs, Docker, or deps. If fixing docs reveals a code issue, mention it as a follow-up.
 
 ## Audit before write
 
@@ -56,6 +56,16 @@ Trigger threshold: ≥3 files of the same shape, or an operation repeated on a s
 
 - Symbol inventories, file structure dumps, caller/callee chains, class hierarchies.
 - Speculative future architecture, marketing language, TODO/TBD, duplicated explanations across files.
+
+## README
+
+When the task targets the root `README.md`:
+
+- Match the user's request; otherwise match the dominant language of existing docs. Preserve identifiers, commands, env vars, and file paths exactly.
+- 500–700 words target, hard max 1000 unless the user asks for more.
+- Default sections: Title + value proposition, key features, architecture overview (Mermaid only when confirmed and clarifying), project structure (high-level pointer, not exhaustive), prerequisites, quick start, configuration, development/testing, troubleshooting.
+- Do not invent features, commands, architecture, or support promises. Ground every claim in manifests, entrypoints, CLI help, or targeted code.
+- GitHub admonitions sparingly for warnings/tips only.
 
 ## Output
 

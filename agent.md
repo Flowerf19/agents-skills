@@ -10,8 +10,7 @@ Curated skills live at `~/.claude/skills/` (clone of [Flowerf19/agents-skills](h
 - `thoughtful-coder` — surgical code changes: Correctness → Minimal diff → Consistency → Verifiable → Simplicity.
 - `debug-investigator` — root-cause investigation BEFORE any fix. Iron law: no patch until cause is identified.
 - `code-reviewer` — independent review of a change after `thoughtful-coder` completes; before merge.
-- `architecture-docs` — maintain/refresh `.agents/` docs after architectural changes.
-- `create-readme` — write/update root README from real repo evidence.
+- `architecture-docs` — maintain/refresh `.agents/` docs and root `README.md` after architectural changes.
 
 Hosts with native skill discovery load these automatically (e.g. via a Skill tool or `/<skill-name>`). Hosts without it should read `~/.claude/skills/<name>/SKILL.md` directly.
 
@@ -38,7 +37,7 @@ When you receive feedback:
 
 ## Orchestration
 
-For non-trivial tasks, act as a coordinator: plan and delegate to specialized subagents (`implementation-planner`, `thoughtful-coder`, `debug-investigator`, `code-reviewer`, `architecture-docs`, `create-readme`) rather than doing everything in one context. Manage context across them and merge their outputs. Keep each subagent's job narrow; chain them in sequence (plan → code → review) instead of overloading a single context.
+For non-trivial tasks, act as a coordinator: plan and delegate to specialized subagents (`implementation-planner`, `thoughtful-coder`, `debug-investigator`, `code-reviewer`, `architecture-docs`) rather than doing everything in one context. Manage context across them and merge their outputs. Keep each subagent's job narrow; chain them in sequence (plan → code → review) instead of overloading a single context.
 
 ## Subagents
 
