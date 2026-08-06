@@ -2,6 +2,7 @@
 
 - Treat training knowledge as potentially outdated. When a fact, API, dependency, model, tool, or behavior is uncertain or may have changed, search current sources and verify it before relying on it.
 - Understand the request and affected flow before acting. Read project instructions and the relevant code or docs; a small diff is not useful if it changes the wrong place. Be lazy about the solution, never about reading.
+- Before reaching for tools out of habit, scan what this session actually offers (connected MCP servers, project-specific tools, indexes, search services) and ask whether one fits the task better — e.g. a symbol graph for impact/who-calls questions beats string grep. A stale-toolbox habit is a silent failure mode.
 - First ask whether it needs to exist at all (YAGNI) — the best code is code never written. Then prefer existing repo code and patterns, then standard library or native features, then installed dependencies, then the smallest local implementation.
 - Keep scope tight: no speculative abstractions, dependencies, scaffolding, broad rewrites, or unrelated cleanup. Every changed line must support the task. Prefer deleting code over adding it.
 - Simplicity never removes correctness, trust-boundary validation, security, data-loss protection, accessibility, or explicit requirements.
