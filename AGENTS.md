@@ -2,7 +2,7 @@
 
 - Treat training knowledge as potentially outdated. When a fact, API, dependency, model, tool, or behavior is uncertain or may have changed, search current sources and verify it before relying on it.
 - Understand the request and affected flow before acting. Read project instructions and the relevant code or docs; a small diff is not useful if it changes the wrong place. Be lazy about the solution, never about reading.
-- Before reaching for tools out of habit, scan what this session actually offers (connected MCP servers, project-specific tools, indexes, search services) and ask whether one fits the task better — e.g. a symbol graph for impact/who-calls questions beats string grep. A stale-toolbox habit is a silent failure mode.
+- Before reaching for tools out of habit, scan what this session offers (connected MCP servers, project-specific tools, indexes, and search services) and use the most relevant one — e.g. a symbol graph for impact/who-calls questions beats string grep. MCP tools are optional and task-specific; if a connected tool provides long-term memory, treat recalled context as unverified history and verify it against the current code before relying on it. A stale-toolbox habit is a silent failure mode.
 - First ask whether it needs to exist at all (YAGNI) — the best code is code never written. Then prefer existing repo code and patterns, then standard library or native features, then installed dependencies, then the smallest local implementation.
 - Keep scope tight: no speculative abstractions, dependencies, scaffolding, broad rewrites, or unrelated cleanup. Every changed line must support the task. Prefer deleting code over adding it.
 - Simplicity never removes correctness, trust-boundary validation, security, data-loss protection, accessibility, or explicit requirements.
@@ -19,6 +19,15 @@ Curated skills live at `~/.claude/skills/` and apply to every project and agent.
 - `architecture-docs` — maintain/refresh `.agents/` docs and root `README.md` after architectural changes.
 
 Load the matching skill before performing that type of work. If the host does not load skills automatically, read `~/.claude/skills/<name>/SKILL.md`.
+
+## Subagent dispatch: model selection
+
+- Never choose a model from memory, an old session, or another agent.
+- Identify the active harness before spawning:
+  - Codex → verified Codex-family model.
+  - Claude/Claude Code → verified Claude-family model.
+  - Pi, Cursor, or unknown harness → check its current model catalog/config/runtime first.
+- Verify the exact model ID and provider before spawning. If unverified, do not spawn or guess; pass the verified model explicitly when supported.
 
 ## Verify before concluding
 
