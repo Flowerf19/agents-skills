@@ -26,6 +26,7 @@ Load the matching skill before performing that type of work. If the host does no
 - Identify the active harness before spawning:
   - Codex → verified Codex-family model.
   - Claude/Claude Code → verified Claude-family model.
+  - Grok → verified Grok-family model.
   - Pi, Cursor, or unknown harness → check its current model catalog/config/runtime first.
 - Verify the exact model ID and provider before spawning. If unverified, do not spawn or guess; pass the verified model explicitly when supported.
 

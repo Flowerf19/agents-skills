@@ -1,6 +1,6 @@
 # Agent Skills
 
-Bộ skill toàn cục cho AI coding agents (Claude Code, Antigravity, Gemini, Cursor, ...). Skills viết theo định dạng `SKILL.md` với YAML frontmatter — Claude Code auto-discover qua `/<skill-name>`, agent khác đọc `SKILL.md` trực tiếp.
+Bộ skill toàn cục cho AI coding agents (Claude Code, Grok, Antigravity, Gemini, Cursor, ...). Skills viết theo định dạng `SKILL.md` với YAML frontmatter — Claude Code và Grok auto-discover qua `/<skill-name>`, agent khác đọc `SKILL.md` trực tiếp.
 
 ## Yêu cầu
 
@@ -38,6 +38,7 @@ Update upstream: `cd ~/.claude/skills && git pull` (hoặc `git submodule update
 | Host | File config native | Nội dung |
 |---|---|---|
 | Claude Code | `~/.claude/CLAUDE.md` | `Read & follow ~/.claude/skills/AGENTS.md` |
+| Grok | `~/.grok/rules/operating-guide.md` | `Read & follow ~/.claude/skills/AGENTS.md` |
 | Codex | `~/.codex/AGENTS.md` | `Read & follow ~/.claude/skills/AGENTS.md` |
 | Antigravity / Gemini | `~/.gemini/GEMINI.md` | `Read & follow ~/.claude/skills/AGENTS.md` |
 
@@ -64,6 +65,8 @@ Sửa rule 1 lần ở `AGENTS.md` → mọi host nhận cùng lúc. Không nhé
 /thoughtful-coder Fix null pointer khi user chưa có profile
 /code-reviewer HEAD~1..HEAD
 ```
+
+**Grok** — cùng slash `/<skill-name>` và auto-discover qua `description`. Grok quét `~/.grok/skills/` (symlink tới `~/.claude/skills`) và `~/.claude/skills/` (compat Claude). Pointer operating guide: `~/.grok/rules/operating-guide.md`.
 
 **Codex / Antigravity / Cursor / agent khác** — không có slash-command discovery. Trỏ agent đọc `~/.claude/skills/<name>/SKILL.md` và follow procedural instruction trong body. Ví dụ với Cursor: attach file `~/.claude/skills/debug-investigator/SKILL.md` vào context rồi mô tả bug.
 
