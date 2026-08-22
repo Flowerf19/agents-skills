@@ -17,6 +17,7 @@ Use this skill to implement code changes. Optimise in this order: Correctness �
 
 - Change the correct ownership point, not only the reported symptom path.
 - Match existing style, helpers, and module boundaries.
+- SOLID is hard: entity / I/O / policy / orchestrator in separate files — no shim, no collapse. A class stays under 300 lines including comments, docstrings, and blanks (~200 → re-check SRP). Split first if the next edit would cross 300. Generated/vendored exempt.
 - Clean only unused imports or artifacts introduced by the change.
 - Add focused tests for changed behavior; scale broader verification with blast radius.
 - Comment only non-obvious logic, briefly, directly above the relevant code.

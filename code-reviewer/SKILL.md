@@ -30,6 +30,7 @@ If no range is supplied, state the range selected.
 | Security | Injection, secret leakage, authn/authz, unsafe parsing. |
 | Compatibility | Public APIs, schemas, env vars, downstream callers. |
 | Scope | No unrelated edits, renames, formatting, or abstractions. |
+| Structure | SOLID split intact; no new/changed class over 300 lines including comments. Collapse or over-cap is **Important**. |
 | Conventions | Existing helpers, ownership, style, imports. |
 | Tests | Changed behavior and important failures are asserted. |
 
