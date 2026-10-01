@@ -14,6 +14,21 @@ Shared working rules and task-specific skills for coding agents. [AGENTS.md](AGE
 
 These skills are a toolkit, not a mandatory chain. Small, understood implementation requests need no formal plan. An end-to-end fix can include investigation, implementation, verification, review, and directly related documentation within the authorized scope.
 
+## Repository-grounded workflow
+
+Start from the active repository and ref, its instruction entrypoint, referenced project context/decisions/plans, affected source and callers, and testing environment. A `.agents/` guide may need to be opened explicitly; its presence does not prove the host loaded it. Source shows the current implementation; accepted decisions describe the target. Report material disagreement instead of treating either as automatic authorization to rewrite the other.
+
+| Check | Working output | Next step |
+|-------|----------------|-----------|
+| Context or reproduction | Actual entrypoint, current behavior, accepted target, authorized scope | Resolve material contract gaps; otherwise continue within scope. |
+| Contract and dependency plan | Owners, input/output, invariants, affected consumers, task order, verification gates | Formalize only when the task needs a plan. |
+| Implementation | A complete scoped slice using existing contracts/composition points | Check affected consumers before dependent work. |
+| Verification | Behavior, boundary integration, relevant product path; passed/failed/skipped evidence | Keep unavailable acceptance gates outstanding. |
+| Review and correction | Findings against the actual diff, verified corrections, rerun checks | Distinguish self-review from independent review. |
+| Documentation and close-out | Existing guidance synchronized, accurate plan and verification status | Commit, merge, and release retain their own authorization. |
+
+This captures recurring patterns across the owner's projects: orchestration separated from concrete I/O, canonical contracts with explicit ownership, dependency-based execution, and verification across the consumer boundary. It does not impose Thyca's agent phases, Another Brain's storage, or one UI theme on every project. See [the source audit](WORKFLOW_AUDIT.md) for pinned evidence, observed gaps, and validation limits.
+
 ## Installation and host configuration
 
 Personal installation:

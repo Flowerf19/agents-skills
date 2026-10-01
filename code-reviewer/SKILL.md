@@ -16,6 +16,7 @@ Review is read-only. Do not fix code, rewrite tests, or update plan status. A re
 
 - Identify the exact diff or ref range, requirement, authorized scope, accepted decisions, and verification results. If no range is specified, state which changes you selected and keep unrelated existing edits out of the verdict.
 - Read affected files, relevant contracts and callers, and the test diff. Trace shared behavior beyond the changed lines when necessary.
+- Check the target branch/ref and relevant project context, decisions, plan dependencies, and testing gates. Compare both the current implementation and accepted target; do not turn a stale README or historical plan into the requirement.
 - If the requirement or review target is missing or ambiguous, ask or state the limited scope. Do not invent a spec from personal preferences or an unapproved plan.
 
 ## Evaluate the change
@@ -25,7 +26,9 @@ Review is read-only. Do not fix code, rewrite tests, or update plan status. A re
 - **Security and data safety:** trust boundaries, authorization, tenant isolation, unsafe parsing, secret exposure, and destructive behavior remain correct.
 - **Compatibility:** callers, APIs, schemas, configuration, persisted data, and migration behavior match the accepted contract.
 - **Scope and maintainability:** ownership and repository patterns are respected; no unrelated changes, speculative layers, or functionality replaced with stubs to make checks pass. Do not demand a refactor because of a generic style rule or line count.
+- **Boundary integration:** orchestration has not acquired concrete provider/platform/storage I/O outside its established responsibility, canonical contracts remain owned in one place, and composition still reaches the real entrypoint. For moved/split modules, check consumer imports, signatures, payloads, events, provenance, persisted state, and combined changes from other owners.
 - **Verification:** tests assert the requested behavior and important failures; changed expectations are justified; reported results match actual evidence. Run safe, relevant checks when useful and disclose what was not run.
+- **Gate integrity:** dependency-ready tasks and project phase gates were honored. Distinguish mock/unit results from integration and real service/model/installed-product evidence; disclose skipped required checks instead of reporting them passed. Review benchmark provenance and comparability when measurement is part of the requirement.
 
 Try to refute each candidate finding before reporting it: locate a reachable scenario, show the impact, and check whether an existing guard or test already addresses it. No finding quota. Do not manufacture gaps or block on hypothetical cases outside the contract. Put consequential unresolved concerns under open questions, not confirmed defects.
 
