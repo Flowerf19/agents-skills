@@ -1,33 +1,33 @@
 # Agent Skills
 
-Shared working rules and task-specific skills for coding agents. [AGENTS.md](AGENTS.md) defines permission boundaries, evidence standards, and skill routing. Each skill defines its outcome, scope, verification, and handoff without granting new authority.
+Shared rules and skills for coding agents. [AGENTS.md](AGENTS.md) sets the common permissions and project checks. Each skill adds steps for one kind of task.
 
 ## Core workflow skills
 
-| Skill | Use when | Result and boundary |
-|-------|----------|---------------------|
-| [implementation-planner](implementation-planner/SKILL.md) | Comparing architecture options, planning a feature, or turning a spec into an implementation plan | Evidence-grounded recommendation or authorized plan artifact; no implementation or self-approval. |
-| [debug-investigator](debug-investigator/SKILL.md) | Diagnosing a bug, failing test, build error, or performance regression | Cause-and-effect evidence and a correction point; investigation alone does not authorize a fix. |
-| [thoughtful-coder](thoughtful-coder/SKILL.md) | Implementing an explicitly requested feature, fix, refactor, or implementation plan | Scoped diff and behavior verification; unresolved consequential decisions go back to the user. |
-| [code-reviewer](code-reviewer/SKILL.md) | Reviewing a diff, pull request, or uncommitted changes | Evidence-backed findings and a verdict; review is read-only and does not authorize merge. |
-| [architecture-docs](architecture-docs/SKILL.md) | Writing, auditing, or synchronizing architecture and agent guidance | Authorized document changes based on verified reality; no runtime changes or mandatory scaffolding. |
+| Skill | Use for | Result |
+|---|---|---|
+| [implementation-planner](implementation-planner/SKILL.md) | Compare designs or plan a change | Recommendation or approved plan file; no code edits |
+| [debug-investigator](debug-investigator/SKILL.md) | Diagnose a bug, failed test, build error, or slow behavior | Cause, evidence, and proposed fix; diagnosis alone does not allow edits |
+| [thoughtful-coder](thoughtful-coder/SKILL.md) | Implement an approved feature, fix, or refactor | Focused change and check results |
+| [code-reviewer](code-reviewer/SKILL.md) | Review a diff, PR, or local changes | Findings and verdict; no edits |
+| [architecture-docs](architecture-docs/SKILL.md) | Write or update project guidance and prompts | Approved document changes; no runtime edits |
 
-These skills are a toolkit, not a mandatory chain. Small, understood implementation requests need no formal plan. An end-to-end fix can include investigation, implementation, verification, review, and directly related documentation within the authorized scope.
+Use only the skills the task needs. A small, clear change does not need a formal plan. An end-to-end fix includes the needed investigation, implementation, checks, review, and related docs within its approved scope.
 
-## Repository-grounded workflow
+## Work from the current project
 
-Start from the active repository and ref, its instruction entrypoint, referenced project context/decisions/plans, affected source and callers, and testing environment. A `.agents/` guide may need to be opened explicitly; its presence does not prove the host loaded it. Source shows the current implementation; accepted decisions describe the target. Report material disagreement instead of treating either as automatic authorization to rewrite the other.
+1. Read the request, project instructions, affected code, callers, and tests. Check the branch or commit and existing changes.
+2. Check relevant project guides. A `.agents/` guide may need to be opened manually. Separate current code, accepted requirements, and old document claims.
+3. Plan when needed. Identify affected modules, inputs and outputs, task dependencies, and required checks. Task numbers do not define execution order.
+4. Make the approved change using the project's existing modules and interfaces.
+5. Check the changed behavior, its callers, and the relevant product flow. Report passed, failed, and skipped checks. Missing required checks remain outstanding.
+6. Review the actual diff, apply valid fixes within scope, and update directly affected docs. Commit, merge, and release need their own permission.
 
-| Check | Working output | Next step |
-|-------|----------------|-----------|
-| Context or reproduction | Actual entrypoint, current behavior, accepted target, authorized scope | Resolve material contract gaps; otherwise continue within scope. |
-| Contract and dependency plan | Owners, input/output, invariants, affected consumers, task order, verification gates | Formalize only when the task needs a plan. |
-| Implementation | A complete scoped slice using existing contracts/composition points | Check affected consumers before dependent work. |
-| Verification | Behavior, boundary integration, relevant product path; passed/failed/skipped evidence | Keep unavailable acceptance gates outstanding. |
-| Review and correction | Findings against the actual diff, verified corrections, rerun checks | Distinguish self-review from independent review. |
-| Documentation and close-out | Existing guidance synchronized, accurate plan and verification status | Commit, merge, and release retain their own authorization. |
+Discussion-only, diagnosis-only, and review-only requests stop at their requested result. Do not run the full workflow for every task.
 
-This captures recurring patterns across the owner's projects: orchestration separated from concrete I/O, canonical contracts with explicit ownership, dependency-based execution, and verification across the consumer boundary. It does not impose Thyca's agent phases, Another Brain's storage, or one UI theme on every project. See [the source audit](WORKFLOW_AUDIT.md) for pinned evidence, observed gaps, and validation limits.
+These rules come from recurring patterns in the owner's projects. Keep workflow control separate from external calls, shared data definitions at their source, and tests connected to affected callers. Use each project's own database, agent stages, and UI conventions.
+
+[WORKFLOW_AUDIT.md](WORKFLOW_AUDIT.md) records the source evidence and prompt reviews. It is review history, not a file every task must read.
 
 ## Installation and host configuration
 
@@ -70,17 +70,17 @@ Other hosts may use different discovery and invocation conventions; consult thei
 
 Each `SKILL.md` includes `name`, `description`, and an optional `argument-hint`. Descriptions state what the skill does, when to select it, and relevant task keywords. Body instructions are loaded when needed. In Claude Code, arguments without a receiving placeholder are appended to the skill content; Pi appends explicit skill arguments as a user request. This suite does not require `$ARGUMENTS` substitution. `argument-hint` is a Claude Code extension; API or other portable packaging may require removing unsupported frontmatter fields.
 
-## Why this instruction-suite revision exists
+## Writing and permissions
 
-The revision makes three distinctions explicit: a recommendation is not an accepted design, an accepted design is not permission to implement, and a skill handoff cannot expand the user's authorization. A plan remains `draft` until execution is authorized; its status records progress rather than granting approval. `done` means the authorized work is implemented and verified, not that an unrequested commit or merge occurred. Plan changes update `last_updated`.
+Write shared rules and skills in plain English. State the goal and allowed changes first. Use short sentences and numbered steps when order matters. Keep details such as migration, concurrency, and benchmarks conditional on the task.
 
-It also prevents missing domain requirements from being filled with invented keyword classifiers, thresholds, mappings, or fallback labels. Regex remains appropriate for verified syntax. Semantic heuristics need an identifiable basis, representative cases, counterexamples, and error evaluation; deterministic code and LLM output are not substitutes for a domain contract.
+Keep common rules in `AGENTS.md` and task-specific steps in the skill. Each skill still states its own permission limit. Do not add repeated explanations of standard programming practices.
 
-This revisits [commit d70202a](https://github.com/Flowerf19/agents-skills/commit/d70202a6b0627e6eb58a0acbda8e7721541cacbf), which introduced SOLID separation and a 300-line class cap. Responsibility boundaries remain important, but a fixed line count is no longer a reason to split code or demand a refactor. Mandatory documentation bootstrapping, README word quotas, and a fixed debugging-attempt cutoff were also removed because they can cause unrelated work rather than prove correctness.
+A recommendation, an accepted design, and permission to implement are different. Plan status records progress; it does not approve work. Do not invent business rules to fill missing requirements.
 
-Reviewers now substantiate and try to refute findings instead of reporting every uncertain concern as a defect. Security-sensitive, data-safety, and high-blast-radius changes still require independent review before being reported ready to merge; unavailable review stays outstanding. Self-review is not independent review.
+Split code for useful responsibilities, not a fixed line count. Do not create documentation folders, fill word quotas, or stop debugging after a fixed number of attempts just because a skill is active.
 
-Repeated references to a personal absolute AGENTS.md path were removed from the five skill bodies. Shared policy stays in the host-loaded common guide, while each skill retains its own permission boundary. This reduces duplication and external path coupling; it does not certify API portability or reliable auto-trigger behavior.
+Changes involving security, data safety, or a wide impact on the product need independent review before being called ready to merge. Report missing review as outstanding. Self-review is not independent review.
 
 ## Verification
 

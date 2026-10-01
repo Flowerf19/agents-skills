@@ -1,37 +1,49 @@
 ---
 name: debug-investigator
-description: Establish an evidence-backed root cause before a fix. Use when the user asks to diagnose, debug, or investigate a bug, failing test, build error, performance regression, or unexpected behavior, or when a requested fix needs root-cause analysis. Investigation alone does not authorize code changes.
-argument-hint: Symptom, failing test, error output, logs, or reproduction.
+description: Find why a failure happens before proposing a fix. Use when the user asks to diagnose or debug a bug, failing test, build error, slow behavior, or unexpected result, or when an approved fix needs investigation. Diagnosis alone does not give permission to edit code.
+argument-hint: Symptom, failed test, error, logs, or reproduction steps.
 ---
 
 # Debug investigator
 
-## Outcome and boundary
+Explain what failed, why it failed, and where the smallest fix belongs.
 
-Explain the failure with a cause-and-effect statement backed by a reproduction or direct evidence, and identify the smallest correction point.
+Keep the repository unchanged for diagnosis-only requests. Use existing tests, read-only inspection, or isolated temporary checks. Do not change production data or expose secrets. Add a tracked reproduction test only when the task allows it. An approved end-to-end fix can continue to coding after the cause is confirmed.
 
-Investigation does not authorize a fix. Keep the repository unchanged during a diagnosis-only request. Prefer existing tests, read-only inspection, or isolated temporary probes; do not mutate production data or expose secrets. Add a tracked reproduction test only when the authorized task includes it. An end-to-end bug-fix request may proceed to coding after cause confirmation without asking again.
+## Step 1: Capture the failure
 
-## Investigate
+1. Record expected and actual behavior, inputs, errors, and environment.
+2. Check the source branch or commit, project guides, and how the failing flow starts.
+3. Try the smallest reproduction. State whether the failure was reproduced.
+4. Check current behavior against accepted requirements. Do not assume a mocked flow or old document describes the real failure.
 
-- Capture expected behavior, actual behavior, exact inputs, error output, environment, and the affected boundary. Distinguish a reproducible defect from a report you cannot yet reproduce.
-- Confirm the source ref, actual entrypoint, project context, and test/runtime environment. Separate current behavior from the accepted target and historical guidance; a mocked path or stale status may not describe the failing runtime.
-- Trace the relevant data and control flow back to the first broken assumption. Check recent changes and compare with a working path where useful.
-- Follow the contract across caller, orchestrator, adapter/storage, and returned result. Inspect the relevant ordering, cancellation, concurrent state, persistence/restart, and observability boundaries rather than assuming a success-shaped response proves completion. Use a neighboring working flow to isolate the difference without importing its unrelated policy.
-- State a falsifiable hypothesis and use the smallest probe that can distinguish it from alternatives. Record what the result confirms or rules out.
-- Revise the hypothesis when evidence contradicts it. Do not try random edits or call a plausible explanation a confirmed cause.
-- For intermittent or environment-specific failures, collect evidence at the relevant boundary. Report uncertainty rather than prescribing blanket retries, timeouts, or monitoring as a substitute for a diagnosis.
+## Step 2: Trace the cause
 
-If probes stop yielding discriminating evidence, stop, summarize what was ruled out, and identify the missing observation or access. Do not use an arbitrary attempt count to declare the architecture wrong or keep patching without a hypothesis.
+1. Follow data and calls through the affected modules to the returned result.
+2. Find the first point where behavior differs from the requirement.
+3. Compare recent changes and a working flow when useful. Do not copy unrelated business rules from it.
+4. For async or stored state, inspect relevant event order, cancellation, concurrent updates, restart, and logs. A success response alone does not prove the operation finished.
 
-## Handoff
+## Step 3: Test an explanation
 
-Return:
+1. State a possible cause and the observation that would disprove it.
+2. Run the smallest check that separates it from other possible causes.
+3. Record what the result confirms or rules out.
+4. Revise the explanation when evidence contradicts it. Do not make random edits or label a guess as confirmed.
 
-- Expected versus actual behavior and a minimal reproduction, when available.
-- Confirmed cause with file/line references, logs, or probe results; unresolved hypotheses separately.
-- Affected callers or data and the smallest correction point.
-- A regression check that detects the failure and the relevant broader verification.
-- Whether a fix is authorized.
+For intermittent failures, collect evidence where the failure occurs. Do not replace diagnosis with blanket retries or larger timeouts.
 
-If correction requires an unresolved design, pass the evidence to `implementation-planner`. If the cause is confirmed and implementation is authorized, hand off to `thoughtful-coder`; otherwise stop with the diagnosis. The coder verifies the reproduction and regressions after the fix; `code-reviewer` evaluates the resulting diff, not the hypothesis alone.
+If checks stop producing useful evidence, stop the investigation. Report what was ruled out and which observation or access is missing. Do not declare the design wrong after an arbitrary number of attempts.
+
+## Step 4: Return the diagnosis
+
+Report:
+
+- Expected and actual behavior, with reproduction steps when available.
+- Confirmed cause and evidence: file locations, logs, or check results.
+- Unconfirmed explanations separately.
+- Affected callers or data, and the smallest place to fix the problem.
+- A regression check and any broader checks the fix will need.
+- Whether implementation is approved.
+
+If a design question blocks the fix, pass the evidence to `implementation-planner`. If the cause is confirmed and coding is approved, continue with `thoughtful-coder`. Otherwise stop after the diagnosis. Review the resulting code diff with `code-reviewer`; a diagnosis alone is not a code review.

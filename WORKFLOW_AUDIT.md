@@ -1,4 +1,8 @@
-# Workflow source audit
+# Workflow audit and prompt review
+
+The source audit below records the work merged in [PR #1](https://github.com/Flowerf19/agents-skills/pull/1). It is historical evidence, not required context for every task.
+
+## Source audit baseline
 
 Audit date: 2026-10-01. Target baseline: [`f1e72be`](https://github.com/Flowerf19/agents-skills/commit/f1e72be8debcf8655f047f2c0e017ac6a17cf3e1). Scope: common rules and the five coding-workflow skills, compared with selected source, contracts, tests, and project guidance on the source repositories' `main` snapshots below. This is a workflow audit, not a comprehensive bug audit of those projects. Other branches, unpushed work, and production deployments were not inspected.
 
@@ -68,3 +72,51 @@ Checks: `git diff --check`; YAML metadata on the five changed skills; their loca
 | Request to pause, or no commit permission | Preserve current work and stop the restricted action | Preserved |
 
 Runtime forward-tests are still needed before claiming reliable skill activation or agent compliance. The source drift noted above is evidence for improving discovery, not authorization to edit those projects during this task.
+
+
+## Plain-English rewrite and sequential self-review
+
+Date: 2026-10-01. Rewrite baseline: [`687bbb4`](https://github.com/Flowerf19/agents-skills/commit/687bbb449bdd6704c73cb28b8bcecaa1a3cb0e7f), after PR #1 was merged.
+
+The user requested simple language, separate steps where needed, and a review after each prompt. The editing order was common rules, planner, coder, reviewer, debug, then docs. Each file was compared with its baseline before proceeding. README was then updated to match the prompts. The source-audit evidence above was retained.
+
+Review method: read the diff, check for unclear actions or lost requirements, correct confirmed gaps, then inspect the corrected instructions. These were same-context self-reviews, not independent reviews or runtime tests.
+
+| Prompt | Rewrite | Review and corrections | Words before / after |
+|---|---|---|---|
+| `AGENTS.md` | Plain common rules; project reading steps; shorter skill routing | Kept separate permissions for implementation and commit/merge, existing edits, missing business rules, host-selected skills, and independent review. Clarified that existing edits must not be included without permission. | 1380 / 944 |
+| `implementation-planner` | Understand, resolve questions, write the needed plan, check and hand off | Restored explicit flow tracing, failure cases, and missing-check consequences. Kept dependency order, conditional details, plan history, and status permissions. | 691 / 577 |
+| `thoughtful-coder` | Understand, change, verify, review and finish | Clarified that a bug needs cause evidence, provider details stay in adapters, and shared definitions stay at their source. Kept caller checks, conditional state checks, and skipped-check reporting. | 839 / 650 |
+| `code-reviewer` | Set scope, check relevant parts, validate findings, return the review | Kept read-only scope, severity meanings, and attempts to disprove findings. Restored explicit heuristic counterexamples and comparison of reported results with evidence. | 679 / 630 |
+| `debug-investigator` | Capture failure, trace cause, test an explanation, return diagnosis | Kept diagnosis-only work unchanged, safe temporary checks, cause versus guess, useful stopping conditions, and coding only within approved scope. No further issue confirmed in this static pass. | 487 / 474 |
+| `architecture-docs` | Check facts, choose location, write clearly, review and report | Kept document-only edits, plan-status limits, and full security/data-loss warnings. Clarified requested language for documents other than shared English instructions. | 646 / 538 |
+
+Word counts use whitespace-separated tokens including frontmatter and headings. Total: 4722 to 3813, a 19.3% reduction. This measures length only; it does not measure model understanding.
+
+### Combined scenario walkthrough
+
+The 12 source-audit scenarios above were checked again against the rewritten prompts. The following cases received extra attention:
+
+| Request or condition | Instruction path checked | Static result |
+|---|---|---|
+| Compare designs; do not edit files | Planner boundary and handoff | Conversation recommendation; no code or unsolicited plan file |
+| Review a PR; a real bug is found | Reviewer boundary and final step | Findings only; no automatic fix or plan-status edit |
+| Fix a reproduced bug end to end | Debug handoff, coder steps, common permission rules | Continue within scope without repeated approval at ordinary handoffs |
+| A small change with no design question | Common routing and planner step 1 | No formal plan or documentation scaffold required |
+| Refactor a module used by another module | Planner conditional details, coder steps 2–3, reviewer integration check | Preserve required interfaces and check callers |
+| A required model is unavailable | Planner prerequisites, coder check results, reviewer required checks | Report the missing check; do not treat mocks as live proof |
+| A prompt rewrite finds a runtime defect | Docs boundary and final handoff | Report or hand off the defect; do not edit runtime code |
+| A new business rule or architecture is needed | Common permission rules and planner questions | Keep the choice open and ask before implementing it |
+| Runtime model/provider identity is unavailable | Common subagent rule | Do not spawn; label same-context review as self-review |
+
+### Checks and remaining work
+
+Static checks: `git diff --check`, five YAML headers and their description limits, four ordered steps in each skill, local Markdown links, and comparison with the baseline permissions and workflow requirements. Optional skills and source projects were not edited.
+
+No confirmed issue remained in the static self-review after the listed corrections. This is not a merge-readiness certification. Target-host skill selection, explicit invocation, actual tool-call behavior, and independent review remain unverified. No Claude API evaluation or source-project runtime suite was run.
+
+Writing references checked during the discussion:
+
+- [Claude prompting best practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices): clear actions, needed context, and ordered steps when order matters.
+- [Skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices): concise instructions, useful descriptions, conditional detail, and task-appropriate freedom.
+- [Claude Code best practices](https://code.claude.com/docs/en/best-practices): short, human-readable common guidance and removal of unnecessary instructions.
