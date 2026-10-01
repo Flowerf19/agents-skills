@@ -15,6 +15,8 @@ Planning does not authorize implementation. For an architecture discussion, answ
 ## Ground the decision
 
 - Read the current request, applicable project instructions, existing decisions or plans, and the affected flow. Use actual code and tests rather than an assumed file inventory.
+- Establish the source branch/ref and runtime entrypoint. Follow the project's guide into its rules, context, decisions, and testing commands; distinguish stale status, implemented behavior, accepted target contracts, and historical plans. A draft plan may contain accepted decisions without authorizing execution.
+- Trace the producer and consumer across the affected modules. Identify current ownership, canonical types/schema, dependency direction, and composition points before proposing a layout. Borrow responsibility boundaries from similar working code, not a fixed class count or another project's runtime pipeline.
 - State the desired outcome, existing limitation, constraints, and what is out of scope.
 - For an unresolved design, compare viable options and their correctness, compatibility, cost, and verification trade-offs. Recommend one without treating it as accepted.
 - Ask targeted questions when the answer changes correctness or scope. Unapproved rules, mappings, thresholds, or architecture remain open decisions; do not encode them as executable defaults.
@@ -37,8 +39,11 @@ Include only what another implementer needs:
 - Goal, acceptance criteria, authorized scope, and non-goals.
 - Accepted decisions with their source; unresolved decisions separately.
 - Small tasks tied to outcomes, relevant ownership points, and dependencies. Name interfaces or files when they remove execution ambiguity, not to prescribe every tool call.
+- For a boundary change, identify input/output contracts, invariants, state transitions, error/cancellation behavior, and affected callers. For a refactor, state the public behavior/import/wire/data surfaces that must remain compatible. For UI work, include affected routes, page/shared ownership, and existing design tokens when relevant.
+- State dependency order and phase gates explicitly. Keep a blocked task blocked; do not infer execution order from GOAL/TASK numbering. If parallel work is supported and useful, assign non-overlapping ownership and identify the shared-contract integration check.
 - Failure cases, compatibility and data-safety concerns, and any approved migration or rollback needs.
 - Runnable verification commands and expected behavior. For performance or classification, use agreed metrics and representative cases, not invented thresholds.
+- Separate isolated tests, caller/adapter integration, and the relevant product-path or acceptance gate. State the required interpreter, service/model/artifact prerequisites, and what a skipped gate leaves unverified. Keep mock, measured, and live evidence distinct.
 
 Preserve existing task IDs and completed history. Update `last_updated` whenever the plan changes. Record genuine changes of scope instead of silently rewriting what was approved. Do not present a plan with unresolved blocking decisions as execution-ready.
 
