@@ -1,35 +1,28 @@
 ---
 name: implementation-planner
-description: Create or update execution-ready implementation plans from specs, features, bugs, or subsystem goals, grounded in repository evidence.
-argument-hint: Feature specification, issue description, or planning goal.
+description: Explore architecture options and create evidence-grounded implementation plans. Use when the user asks to plan a feature, compare design approaches, decide architecture, or turn a spec into an execution plan, or when an authorized non-trivial change needs planning. Planning does not authorize implementation.
+argument-hint: Feature, architecture question, bug handoff, or existing plan.
 ---
 
-Create or update an execution-ready plan another agent can follow. Planning-only: write the plan artifact, not runtime code or config.
+# Implementation planner
 
-## Before drafting
+## Outcome and boundary
 
-- If `.agents/` is missing, run `architecture-docs` first to bootstrap it.
-- Read project instructions, the request, any existing plan, and relevant repo evidence.
-- Resolve decisions that affect scope, interfaces, sequencing, or acceptance criteria.
-- Ask only when no safe default exists; otherwise record the assumption.
-- If the spec conflicts with the repo, name the conflict and propose a compatible alternative. Stop for unsafe or impossible requirements.
+Produce a recommendation or an execution-ready plan that connects the user's goal to repository evidence and a verifiable result.
 
-## Plan content
+Planning does not authorize implementation. For an architecture discussion, answer in the conversation; do not create a plan file unless the user requests a written artifact or has authorized an implementation task that needs one. Do not edit runtime code, tests, configuration, dependencies, or unrelated guidance.
 
-Include:
+## Ground the decision
 
-- Goal and measurable success criteria.
-- Phase goals (`GOAL-NNN`) with small independently verifiable tasks (`TASK-NNN`).
-- Interfaces, schemas, commands, and files only where needed to remove execution ambiguity.
-- Correctness-relevant edge cases and failure modes.
-- Focused tests and acceptance criteria.
-- Assumptions and defaults.
+- Read the current request, applicable project instructions, existing decisions or plans, and the affected flow. Use actual code and tests rather than an assumed file inventory.
+- State the desired outcome, existing limitation, constraints, and what is out of scope.
+- For an unresolved design, compare viable options and their correctness, compatibility, cost, and verification trade-offs. Recommend one without treating it as accepted.
+- Ask targeted questions when the answer changes correctness or scope. Unapproved rules, mappings, thresholds, or architecture remain open decisions; do not encode them as executable defaults.
+- If a bug is not understood, use `debug-investigator` for cause-and-effect evidence before planning a fix. If a small requested change is already clear, skip formal planning.
 
-Do not include broad rewrites, speculative abstractions, TODO/TBD placeholders, file inventories, or call-graph dumps.
+## Plan artifact
 
-## Format
-
-Default path: `.agents/plans/<slug>.md`.
+Use an existing plan and repository format where available. Otherwise write an authorized artifact to `.agents/plans/<slug>.md`; create only the directory needed for that artifact, not a documentation scaffold.
 
 ```yaml
 ---
@@ -39,23 +32,18 @@ last_updated: YYYY-MM-DD
 ---
 ```
 
-Body sections: Summary, Tasks, Test Plan, Assumptions.
+Include only what another implementer needs:
 
-```md
-### GOAL-001: <phase goal>
+- Goal, acceptance criteria, authorized scope, and non-goals.
+- Accepted decisions with their source; unresolved decisions separately.
+- Small tasks tied to outcomes, relevant ownership points, and dependencies. Name interfaces or files when they remove execution ambiguity, not to prescribe every tool call.
+- Failure cases, compatibility and data-safety concerns, and any approved migration or rollback needs.
+- Runnable verification commands and expected behavior. For performance or classification, use agreed metrics and representative cases, not invented thresholds.
 
-| ID | Task | Done | Date |
-|----|------|------|------|
-| TASK-001 | <small verifiable step> | | |
-```
+Preserve existing task IDs and completed history. Update `last_updated` whenever the plan changes. Record genuine changes of scope instead of silently rewriting what was approved. Do not present a plan with unresolved blocking decisions as execution-ready.
 
-IDs are append-only; never renumber existing `TASK` or `GOAL` entries.
+## Handoff and lifecycle
 
-## Lifecycle
+Return the recommendation or artifact path, evidence supporting it, open decisions, and whether implementation is authorized. Pass accepted requirements, boundaries, and verification criteria to `thoughtful-coder` only when coding is authorized; otherwise stop after planning.
 
-- `draft` - waiting for approval.
-- `in-progress` - approved and being executed.
-- `done` - implementation merged; keep as a record or move to `.agents/decisions/` for a lasting decision.
-- `abandoned` - superseded or cancelled; keep a one-line reason.
-
-Update existing plans in place. Keep completed IDs, append new IDs, strike superseded tasks with a reason, bump `last_updated`, and restore `in-progress` when approved work resumes.
+A new proposal is `draft`. Use `in-progress` only when execution is authorized and underway. The implementer records `done` after the authorized tasks are implemented and verified; commit and merge are separate permissions. Use `abandoned` with a reason when superseded, and preserve the artifact unless its deletion is authorized.

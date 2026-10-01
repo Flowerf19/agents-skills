@@ -1,36 +1,35 @@
 ---
 name: debug-investigator
-description: Systematically investigate the root cause of a bug, test failure, performance issue, or unexpected behavior before any fix.
-argument-hint: Bug description, failing test, error message, or unexpected behavior.
+description: Establish an evidence-backed root cause before a fix. Use when the user asks to diagnose, debug, or investigate a bug, failing test, build error, performance regression, or unexpected behavior, or when a requested fix needs root-cause analysis. Investigation alone does not authorize code changes.
+argument-hint: Symptom, failing test, error output, logs, or reproduction.
 ---
 
-Investigation only; do not change production code. Hand off to `thoughtful-coder` after root cause is confirmed.
+# Debug investigator
 
-## Iron law
+## Outcome and boundary
 
-**No fix before root cause.** This holds even under time pressure, even when a fix looks "obvious", and especially when previous fixes didn't stick. Investigation is complete when one cause-and-effect statement explains the failure and is backed by evidence — not before.
+Explain the failure with a cause-and-effect statement backed by a reproduction or direct evidence, and identify the smallest correction point.
 
-## Workflow
+Investigation does not authorize a fix. Keep the repository unchanged during a diagnosis-only request. Prefer existing tests, read-only inspection, or isolated temporary probes; do not mutate production data or expose secrets. Add a tracked reproduction test only when the authorized task includes it. An end-to-end bug-fix request may proceed to coding after cause confirmation without asking again.
 
-1. Reproduce reliably and capture the exact error, inputs, and environment.
-2. Trace data/control flow from the failure back to its source; check recent changes and affected callers.
-3. Compare with a nearby working path to isolate the broken assumption.
-4. Test one explicit hypothesis at a time with the smallest probe. Record what each probe confirms or rules out.
-5. State the root cause, evidence, blast radius, and smallest correction point.
+## Investigate
 
-Provide a failing test or minimal reproduction when feasible, then pass it with the root-cause evidence to `thoughtful-coder`. After the fix, verify both the reproduction and the relevant full test suite.
+- Capture expected behavior, actual behavior, exact inputs, error output, environment, and the affected boundary. Distinguish a reproducible defect from a report you cannot yet reproduce.
+- Trace the relevant data and control flow back to the first broken assumption. Check recent changes and compare with a working path where useful.
+- State a falsifiable hypothesis and use the smallest probe that can distinguish it from alternatives. Record what the result confirms or rules out.
+- Revise the hypothesis when evidence contradicts it. Do not try random edits or call a plausible explanation a confirmed cause.
+- For intermittent or environment-specific failures, collect evidence at the relevant boundary. Report uncertainty rather than prescribing blanket retries, timeouts, or monitoring as a substitute for a diagnosis.
 
-## Red flags — stop and restart the investigation
+If probes stop yielding discriminating evidence, stop, summarize what was ruled out, and identify the missing observation or access. Do not use an arbitrary attempt count to declare the architecture wrong or keep patching without a hypothesis.
 
-- "Quick fix for now, refactor later."
-- Trying random changes hoping one sticks.
-- Bundling multiple edits in one attempt.
-- Proposing a fix before tracing data flow.
+## Handoff
 
-## Circuit breaker
+Return:
 
-After three failed hypotheses or fix attempts, stop — the architecture may be wrong, not the line of code. Surface this to the user and re-scope before trying another patch.
+- Expected versus actual behavior and a minimal reproduction, when available.
+- Confirmed cause with file/line references, logs, or probe results; unresolved hypotheses separately.
+- Affected callers or data and the smallest correction point.
+- A regression check that detects the failure and the relevant broader verification.
+- Whether a fix is authorized.
 
-## Environment or timing failures
-
-If evidence points to environment or timing, document the boundary failure and recommend targeted retries, timeouts, or monitoring without claiming certainty beyond the evidence.
+If correction requires an unresolved design, pass the evidence to `implementation-planner`. If the cause is confirmed and implementation is authorized, hand off to `thoughtful-coder`; otherwise stop with the diagnosis. The coder verifies the reproduction and regressions after the fix; `code-reviewer` evaluates the resulting diff, not the hypothesis alone.

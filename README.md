@@ -1,145 +1,90 @@
 # Agent Skills
 
-Bộ skill toàn cục cho AI coding agents (Claude Code, Grok, Antigravity, Gemini, Cursor, ...). Skills viết theo định dạng `SKILL.md` với YAML frontmatter — Claude Code và Grok auto-discover qua `/<skill-name>`, agent khác đọc `SKILL.md` trực tiếp.
+Shared working rules and task-specific skills for coding agents. [AGENTS.md](AGENTS.md) defines permission boundaries, evidence standards, and skill routing. Each skill defines its outcome, scope, verification, and handoff without granting new authority.
 
-## Yêu cầu
+## Core workflow skills
 
-Skills giả định 2 thứ có sẵn trong project:
+| Skill | Use when | Result and boundary |
+|-------|----------|---------------------|
+| [implementation-planner](implementation-planner/SKILL.md) | Comparing architecture options, planning a feature, or turning a spec into an implementation plan | Evidence-grounded recommendation or authorized plan artifact; no implementation or self-approval. |
+| [debug-investigator](debug-investigator/SKILL.md) | Diagnosing a bug, failing test, build error, or performance regression | Cause-and-effect evidence and a correction point; investigation alone does not authorize a fix. |
+| [thoughtful-coder](thoughtful-coder/SKILL.md) | Implementing an explicitly requested feature, fix, refactor, or implementation plan | Scoped diff and behavior verification; unresolved consequential decisions go back to the user. |
+| [code-reviewer](code-reviewer/SKILL.md) | Reviewing a diff, pull request, or uncommitted changes | Evidence-backed findings and a verdict; review is read-only and does not authorize merge. |
+| [architecture-docs](architecture-docs/SKILL.md) | Writing, auditing, or synchronizing architecture and agent guidance | Authorized document changes based on verified reality; no runtime changes or mandatory scaffolding. |
 
-1. **CodeGraph MCP** — index AST cho mọi câu hỏi structural. Skills sẽ delegate `codegraph_explore` (hoặc CLI `codegraph explore`) thay vì grep/read thủ công.
-   ```bash
-   npm install -g @colbymchenry/codegraph
-   codegraph init -i      # 1 lần mỗi repo, tạo .codegraph/
-   ```
-2. **`.agents/` docs** — agent guidance project-specific (boundary, gotcha, testing). Bootstrap tự động bằng `architecture-docs` khi skill nào cần mà folder chưa tồn tại.
+These skills are a toolkit, not a mandatory chain. Small, understood implementation requests need no formal plan. An end-to-end fix can include investigation, implementation, verification, review, and directly related documentation within the authorized scope.
 
-## Install
+## Installation and host configuration
 
-**Global** (khuyến nghị, áp dụng cho mọi project):
+Personal installation:
 
 ```bash
 git clone https://github.com/Flowerf19/agents-skills.git ~/.claude/skills
 ```
 
-**Per-project** (submodule, pinned version cho team):
+Use an unused destination; do not overwrite an existing installation or configuration. For a project-pinned installation, add the repository as a submodule:
 
 ```bash
-cd <project>
 git submodule add https://github.com/Flowerf19/agents-skills.git .agents/skills
-mkdir -p .claude && ln -s ../.agents/skills .claude/skills    # Claude Code discovery
 ```
 
-Update upstream: `cd ~/.claude/skills && git pull` (hoặc `git submodule update --remote .agents/skills`).
+Configure skill discovery for the host. Claude Code discovers personal skills under `~/.claude/skills/` and project skills under `.claude/skills/`. Pi also discovers `~/.agents/skills/` and project `.agents/skills/`; a symlink can expose the same installation without copying files.
 
-## Cấu hình host (1 nguồn chung)
+Load the shared [AGENTS.md](AGENTS.md) through the host's recognized instruction entrypoint, separately from skill discovery. For example, reference it from Claude Code's personal `~/.claude/CLAUDE.md`, or use it as Pi's `~/.pi/agent/AGENTS.md`. Preserve existing host instructions when configuring this. Installing a skill does not automatically load this repository's common guide in every host.
 
-[`AGENTS.md`](AGENTS.md) ở root repo là **operating guide chung, host-agnostic** (đặt tên theo [chuẩn AGENTS.md](https://agents.md)) — gói gọn cách làm việc (skills, handling feedback, orchestration, subagent dispatch + tự chọn model, MCP, CodeGraph). Thay vì copy rule vào từng tool, mỗi host chỉ cần file config native **trỏ về nó bằng 1 dòng**:
+CodeGraph and other MCP services are optional, task-specific tools. An existing `.agents/` documentation tree is not a prerequisite. Verify the active provider and exact model ID before spawning subagents; do not assume a model name or map an unspecified tier.
 
-| Host | File config native | Nội dung |
-|---|---|---|
-| Claude Code | `~/.claude/CLAUDE.md` | `Read & follow ~/.claude/skills/AGENTS.md` |
-| Grok | `~/.grok/rules/operating-guide.md` | `Read & follow ~/.claude/skills/AGENTS.md` |
-| Codex | `~/.codex/AGENTS.md` | `Read & follow ~/.claude/skills/AGENTS.md` |
-| Antigravity / Gemini | `~/.gemini/GEMINI.md` | `Read & follow ~/.claude/skills/AGENTS.md` |
+## Invocation
 
-Sửa rule 1 lần ở `AGENTS.md` → mọi host nhận cùng lúc. Không nhét instruction trực tiếp vào file native nữa. Model: `AGENTS.md` chỉ định hướng theo **tier** (light / strong / top) để mỗi host tự map sang model của mình — không fix cứng tên model.
+Claude Code supports natural-language selection and explicit commands:
 
-## Skills (5)
-
-| Skill | Khi dùng | Output |
-|---|---|---|
-| [`implementation-planner`](implementation-planner/SKILL.md) | Trước khi code feature/bug/refactor lớn | `.agents/plans/<slug>.md` với `status:` lifecycle (draft/in-progress/done/abandoned) |
-| [`thoughtful-coder`](thoughtful-coder/SKILL.md) | Mỗi code change | Diff tối thiểu + Documentation impact block + plan close-out |
-| [`debug-investigator`](debug-investigator/SKILL.md) | Khi có bug, test fail, perf regression | Root cause + handoff sang `thoughtful-coder` |
-| [`code-reviewer`](code-reviewer/SKILL.md) | Sau `thoughtful-coder`, trước merge | Issue list Critical/Important/Minor + verdict |
-| [`architecture-docs`](architecture-docs/SKILL.md) | Sau arch change lớn / refactor đụng nhiều file, hoặc khi README thiếu/stale | `.agents/{README,PROJECT_CONTEXT,AGENT_RULES,TESTING_GUIDE}.md` và root `README.md`, audit stale references trước khi sửa |
-
-## Cách dùng
-
-### Invoke theo agent type
-
-**Claude Code** — gõ `/<skill-name>` trong chat, hoặc để auto-discover: mô tả task bằng ngôn ngữ tự nhiên, Claude Code scan `description` trong frontmatter và tự chọn skill phù hợp.
-
-```
-/implementation-planner Thêm OAuth2 login cho gateway service
-/thoughtful-coder Fix null pointer khi user chưa có profile
+```text
+Compare architecture options for rate limiting. Do not edit files.
+/implementation-planner Plan rate limiting for the gateway; do not implement.
 /code-reviewer HEAD~1..HEAD
 ```
 
-**Grok** — cùng slash `/<skill-name>` và auto-discover qua `description`. Grok quét `~/.grok/skills/` (symlink tới `~/.claude/skills`) và `~/.claude/skills/` (compat Claude). Pointer operating guide: `~/.grok/rules/operating-guide.md`.
-
-**Codex / Antigravity / Cursor / agent khác** — không có slash-command discovery. Trỏ agent đọc `~/.claude/skills/<name>/SKILL.md` và follow procedural instruction trong body. Ví dụ với Cursor: attach file `~/.claude/skills/debug-investigator/SKILL.md` vào context rồi mô tả bug.
-
-### Ví dụ cụ thể mỗi skill
-
-| Skill | Input ví dụ | Output nhận được |
-|---|---|---|
-| `implementation-planner` | `"Thêm rate limiting vào API gateway"` | `.agents/plans/rate-limiting.md` — GOAL/TASK IDs, completion ledger `\| ID \| Task \| Done \| Date \|`, YAML header `status: draft` |
-| `implementation-planner` _(update)_ | `"Scope thay đổi: bỏ Redis, dùng in-memory"` | Plan cũ được update in-place — task cũ giữ nguyên ID, task mới append ID tiếp theo, task bị thay thế gạch chân với lý do |
-| `thoughtful-coder` | `"Implement TASK-003 trong plan rate-limiting"` | Diff tối thiểu + Documentation impact block + tick ✅ TASK-003 trong ledger |
-| `debug-investigator` | Stack trace `KeyError: 'user_id'` trong `handler.py:142` | Root cause 1 câu (cause→effect) + failing test + handoff sang `thoughtful-coder` |
-| `code-reviewer` | `git diff origin/main..HEAD` hoặc PR number | Danh sách issue phân loại Critical/Important/Minor + verdict `Approve / Approve with fixes / Request changes` |
-| `architecture-docs` | `"Refresh .agents/ sau khi refactor memory module"` hoặc `"Viết README cho repo này"` | `.agents/README.md`, `PROJECT_CONTEXT.md`, `AGENT_RULES.md`, `TESTING_GUIDE.md` và/hoặc root `README.md` — stale references đã audit và fix |
-
-> **Tip:** `implementation-planner` hỗ trợ cả tạo plan mới lẫn update plan hiện có. IDs (`TASK-`, `GOAL-`) append-only — không bao giờ đánh số lại.
-
-## Workflow chain
-
-```mermaid
-flowchart LR
-    %% giữ thứ tự khai báo này — DI trước IP thì layout không có cạnh cắt nhau
-    DI([debug-investigator]) -.->|handoff| TC([thoughtful-coder])
-    IP([implementation-planner]) -->|plan approved| TC
-    TC -->|PR ready| CR([code-reviewer])
-    CR -->|fix issues| TC
-    CR -->|approved| AD([architecture-docs])
-    TC -.->|doc impact| AD
-    AD -.->|next feature| IP
-```
-
-## Cấu trúc `.agents/`
-
-Thư mục guidance mà các skill tạo & duy trì trong mỗi project:
+Pi's explicit command uses a different prefix:
 
 ```text
-.agents/
-├── README.md
-├── PROJECT_CONTEXT.md
-├── AGENT_RULES.md
-├── TESTING_GUIDE.md
-└── plans/
-    └── <slug>.md
+/skill:implementation-planner Compare rate-limiting approaches; do not edit files.
+/skill:code-reviewer Review HEAD~1..HEAD without modifying files.
 ```
 
-- `README.md`, `PROJECT_CONTEXT.md`, `AGENT_RULES.md`, `TESTING_GUIDE.md` → do `architecture-docs` sinh/refresh.
-- `plans/<slug>.md` (có `status:` lifecycle) → do `implementation-planner` tạo, `thoughtful-coder` close-out.
+Other hosts may use different discovery and invocation conventions; consult their documentation rather than assuming Claude Code syntax.
 
-## Quy tắc chung
+Each `SKILL.md` includes `name`, `description`, and an optional `argument-hint`. Descriptions state what the skill does, when to select it, and relevant task keywords. Body instructions are loaded when needed. In Claude Code, arguments without a receiving placeholder are appended to the skill content; Pi appends explicit skill arguments as a user request. This suite does not require `$ARGUMENTS` substitution. `argument-hint` is a Claude Code extension; API or other portable packaging may require removing unsupported frontmatter fields.
 
-1. **`.agents/` bootstrap** — repo chưa có thì skill nào đụng vào cũng phải gọi `architecture-docs` trước.
-2. **CodeGraph first** — câu hỏi structural đi qua codegraph trước khi grep/Read.
-3. **Không duplicate codegraph trong output** — không file structure dump, symbol inventory, caller/callee chain trong doc/plan/README. Codegraph trả lời on-demand.
-4. **Instruction entrypoints** — skill đọc theo thứ tự: `AGENTS.md` → `CLAUDE.md` → `.github/copilot-instructions.md` → `.agents/README.md`.
+## Why this instruction-suite revision exists
 
-## Format
+The revision makes three distinctions explicit: a recommendation is not an accepted design, an accepted design is not permission to implement, and a skill handoff cannot expand the user's authorization. A plan remains `draft` until execution is authorized; its status records progress rather than granting approval. `done` means the authorized work is implemented and verified, not that an unrequested commit or merge occurred. Plan changes update `last_updated`.
 
-Mỗi skill là 1 folder chứa `SKILL.md` với frontmatter YAML:
+It also prevents missing domain requirements from being filled with invented keyword classifiers, thresholds, mappings, or fallback labels. Regex remains appropriate for verified syntax. Semantic heuristics need an identifiable basis, representative cases, counterexamples, and error evaluation; deterministic code and LLM output are not substitutes for a domain contract.
 
-```yaml
----
-name: <kebab-case-name>
-description: <one line — Claude scan để quyết invoke>
-argument-hint: <input format hint>
----
-```
+This revisits [commit d70202a](https://github.com/Flowerf19/agents-skills/commit/d70202a6b0627e6eb58a0acbda8e7721541cacbf), which introduced SOLID separation and a 300-line class cap. Responsibility boundaries remain important, but a fixed line count is no longer a reason to split code or demand a refactor. Mandatory documentation bootstrapping, README word quotas, and a fixed debugging-attempt cutoff were also removed because they can cause unrelated work rather than prove correctness.
 
-Body là procedural instruction (không "You are a..."). Claude Code load nội dung khi skill được invoke.
+Reviewers now substantiate and try to refute findings instead of reporting every uncertain concern as a defect. Security-sensitive, data-safety, and high-blast-radius changes still require independent review before being reported ready to merge; unavailable review stays outstanding. Self-review is not independent review.
 
-## Đóng góp
+Repeated references to a personal absolute AGENTS.md path were removed from the five skill bodies. Shared policy stays in the host-loaded common guide, while each skill retains its own permission boundary. This reduces duplication and external path coupling; it does not certify API portability or reliable auto-trigger behavior.
 
-PR welcome. Trước khi propose skill mới, check 2 câu hỏi:
+## Verification
 
-1. Có thể nhét vào skill cũ qua 1 section (10-20 dòng) không?
-2. Pain có recurring + workflow khác hẳn skill hiện tại không?
+Check YAML metadata, description limits, local links, and the actual diff. Then test both natural-language selection and explicit invocation with arguments in the target host. Include negative scenarios:
 
-Cả 2 trả lời CÓ → skill mới. Còn lại → tinh skill cũ. Sweet spot là 5 skill — thêm nữa thì noise vs signal xấu đi.
+- An architecture discussion must not produce unauthorized code or a self-approved plan.
+- A review-only request must not modify files.
+- Missing classification requirements must not produce fabricated keyword rules.
+- An authorized end-to-end fix must not ask for redundant approval at every handoff.
+- Pre-existing changes must remain separate; commit and push require authorization.
+
+Static checks and independent prompt review do not establish runtime compliance. Inspect actual tool calls and repository changes during these tests, not just the agent's explanation.
+
+## Sources
+
+- [Anthropic Prompt Library](https://code.claude.com/docs/en/prompt-library): outcome-oriented requests, concrete references, verification criteria, and explicit task boundaries.
+- [Claude Code Best Practices](https://code.claude.com/docs/en/best-practices): separate exploration and planning from implementation, keep persistent guidance concise, and constrain reviews to meaningful requirements.
+- [Skill Authoring Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices): descriptions should explain both what a skill does and when to use it, with specific terms and contexts.
+- [Claude Code Skills](https://code.claude.com/docs/en/skills): discovery, invocation, frontmatter, argument handling, and packaging differences.
+- [Pi Skills](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/skills.md): Pi discovery and `/skill:name` invocation.
+
+These sources inform the prompting and discovery patterns. The suite's authorization gates and risk-based review requirements are repository policy, not claims that Anthropic mandates this exact workflow.
