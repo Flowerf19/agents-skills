@@ -1,51 +1,50 @@
 ---
 name: thoughtful-coder
-description: Implement authorized code changes with minimal scope, repository consistency, and focused verification. Use when the user explicitly requests implementation, a bug fix, a refactor, or execution of an implementation plan. Do not use for discussion, planning, or review-only requests.
-argument-hint: Implementation request, authorized plan, or confirmed bug-fix handoff.
+description: Make approved code changes and check that they work. Use when the user asks to implement a feature, fix a bug, refactor code, or execute a plan. Do not use for discussion, planning, or review-only requests.
+argument-hint: Code change, approved plan, or confirmed bug fix.
 ---
 
 # Thoughtful coder
 
-## Outcome and entry condition
+Deliver the requested behavior, a focused diff, and evidence from relevant checks.
 
-Deliver the requested behavior with a reviewable diff and evidence that it works.
+Edit only when implementation is approved. An accepted design or review suggestion alone is not permission. Complete the approved work; ask before a new decision changes its scope. Commit and merge need separate permission.
 
-Enter only when implementation is authorized. A discussion, draft plan, accepted design without implementation permission, or reviewer suggestion is not authorization. Once authorized, complete the scoped work rather than stopping at a proposal; pause if a new consequential decision or scope expansion is required.
+## Step 1: Understand before editing
 
-## Understand before editing
+1. Check existing changes and keep them separate from this task.
+2. Read the request or accepted plan, project instructions, affected code, tests, and callers. Check the current configuration and relevant guides.
+3. Follow the affected flow from its starting point to its result. Find the files responsible for its data, rules, and external calls.
+4. For a bug, reproduce it and find its cause, or verify the evidence from `debug-investigator`. If a design question blocks the change, use `implementation-planner`.
+5. Choose how to verify the requested behavior before editing.
 
-- Check existing working-tree changes and keep the current task separate.
-- Read the requirement or accepted plan, project instructions, affected implementation, tests, contracts, and relevant callers. Confirm runtime assumptions from current configuration and documentation.
-- Confirm the branch/ref, entrypoint, applicable project context/testing guide, and active task dependencies. Read a working neighboring flow as a concrete pattern; resolve material code/document/target disagreements before implementing against them.
-- For a bug, reproduce it and establish the cause, or verify a `debug-investigator` handoff. For a non-trivial unresolved design, return to `implementation-planner` rather than deciding it in code.
-- Identify a verification method before implementing: a regression test, round-trip, command output, benchmark, or visual comparison appropriate to the request.
+## Step 2: Make the change
 
-## Implement at the correct ownership point
+1. Reuse working project patterns. Make the smallest change that fully solves the task.
+2. Keep business rules, parsing, workflow control, and external I/O in the modules already responsible for them. Connect dependencies where the project already does so. Keep provider details in existing adapters and shared data definitions at their source.
+3. Reuse existing interfaces, factories, and classes when useful. Add layers only when the change needs them.
+4. Follow plan dependencies and required checks before starting the next phase. Check affected callers after each meaningful part of the change.
+5. Preserve input validation and useful errors. Use a fallback only when it is accepted behavior. Ask about missing business rules instead of guessing defaults.
+6. Avoid unrelated cleanup, formatting, and unneeded dependencies. Explain non-obvious decisions in comments. Removing existing functionality needs permission and an explanation of the impact.
 
-- Prefer existing code and patterns. Make the smallest complete change, not the smallest change that hides the symptom.
-- Keep policy, parsing, orchestration, and I/O at their existing responsibility boundaries. Split code when responsibilities or change pressure justify it, not because of an arbitrary line count.
-- Wire concrete dependencies at the existing composition point. Let orchestrators use the project's established contracts; keep provider/platform details in their adapters and validation/schema rules at the canonical owner. Reuse Protocols/ABCs/factories where they already solve the boundary; do not add wrappers or classes just to demonstrate SOLID.
-- During refactors, trace and preserve public imports, call signatures, payload/error shapes, event ordering, provenance, and persisted-data behavior required by callers. A module-local green test is insufficient when another module consumes the changed surface.
-- Complete dependency-ready tasks in the plan's explicit phase order. After a meaningful slice, check the affected consumers before proceeding; integrate independently produced changes before marking the shared outcome complete.
-- Do not replace semantic requirements with guessed keyword rules, magic thresholds, fabricated mappings, or silent defaults. If the necessary contract is missing, stop for that decision.
-- Validate inputs at trust boundaries and preserve meaningful errors. A fallback must be an accepted behavior, not a way to conceal failures.
-- Avoid speculative abstractions, new dependencies, formatting sweeps, and cleanup unrelated to the requested behavior. Removing existing functionality requires authorization and a stated impact.
-- Comment non-obvious decisions and invariants; do not narrate obvious code.
+For refactors or interface changes, check public imports, function arguments, API fields, errors, and callers. Preserve required event order, data source tracking, and stored-data behavior.
 
-## Verify and review
+## Step 3: Verify the behavior
 
-- Test the changed behavior, meaningful failure cases, and affected regressions. Where practical, show a bug regression fails before the fix and passes after it.
-- Run the focused checks first, then broader checks justified by the blast radius. Preserve the exact commands and decisive output. Separate pre-existing failures and unavailable checks from failures caused by the change.
-- Use the project's interpreter/environment and established test commands. Check the caller/adapter seam and relevant real entrypoint where the change crosses a boundary. For async/stateful changes, exercise the affected timeout, cancellation, shutdown, concurrency, persistence/restart, or migration contract.
-- Record passed/failed/skipped checks and their prerequisites separately. Mock tests, imports, and syntax checks do not establish live model/service behavior or benchmark quality. Leave required gates outstanding when the needed service, model, artifact, or environment is unavailable; do not silently lower them.
-- If checks fail, investigate the cause rather than weakening assertions or layering patches. Stop when progress would require guessing a new policy or broadening scope.
-- Inspect the final diff against the request. Pass the requirement, actual diff, affected contracts, and check results to `code-reviewer` for the review warranted by the request and risk. Identify self-review as self-review; do not claim independence without a separate reviewer.
-- Verify reviewer findings before correcting them. Apply valid corrections only within the authorized implementation scope and rerun affected checks. Read-only review requests remain read-only.
+1. Use the project's environment and test commands. Start with focused checks; run broader checks when the change affects more of the system.
+2. Check the requested behavior, important failure cases, and regressions. For a bug, show the test fails before the fix and passes after it when practical.
+3. When a change crosses modules, check the affected callers and the actual product flow.
+4. For async or stored state, check the affected timing, cancellation, shutdown, concurrent updates, restart, or migration behavior.
+5. Record commands and passed, failed, or skipped results. Separate existing failures from new failures. Report missing services, models, files, or environment setup.
+6. Keep required checks outstanding if they cannot run. Mocks, imports, and syntax checks do not prove live service behavior or model quality.
 
-## Close-out and handoff
+If a check fails, investigate the cause. Do not weaken assertions or add patches that hide the failure.
 
-Update an existing authorized plan to reflect completed, remaining, or superseded tasks; record `done` only when the approved work is implemented and verified. Do not create a plan merely to mark it complete.
+## Step 4: Review and finish
 
-Use `architecture-docs` for directly affected documentation within the authorized scope. Do not bootstrap or rewrite guidance unrelated to the change. Report changed behavior, verification, review status, remaining gaps, and any compatibility or data-safety impact. Commit and merge only with separate authorization.
+1. Review the actual diff against the request. Use `code-reviewer` for the review the task needs. Provide the requirements, diff, affected interfaces, and check results.
+2. Verify findings before fixing them. Apply valid fixes within the approved scope and rerun affected checks. Label self-review accurately; follow the project's independent-review requirements.
+3. Update directly affected existing docs with `architecture-docs`. Include changed paths, commands, environment setup, and public behavior. Do not create unrelated guidance.
+4. Update an existing approved plan with verified progress. Mark it `done` only after its tasks are implemented and verified. Do not create a plan just to mark it complete.
 
-When paths, entrypoints, environment, schema, or public behavior change, synchronize the existing project context/testing guide and relevant module README in the same scoped change. Distinguish implementation complete, acceptance verified, review complete, and released; one status is not evidence for the others.
+Report what changed, checks and results, review status, remaining gaps, and compatibility or data-safety impact. Keep implementation, product checks, review, and release status separate.
