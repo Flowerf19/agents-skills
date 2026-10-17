@@ -47,7 +47,7 @@ Configure skill discovery for the host. Claude Code discovers personal skills un
 
 Load the shared [AGENTS.md](AGENTS.md) through the host's recognized instruction entrypoint, separately from skill discovery. For example, reference it from Claude Code's personal `~/.claude/CLAUDE.md`, or use it as Pi's `~/.pi/agent/AGENTS.md`. Preserve existing host instructions when configuring this. Installing a skill does not automatically load this repository's common guide in every host.
 
-CodeGraph and other MCP services are optional, task-specific tools. An existing `.agents/` documentation tree is not a prerequisite. Verify the active provider and exact model ID before spawning subagents; do not assume a model name or map an unspecified tier.
+CodeGraph and other MCP services are optional, task-specific tools. An existing `.agents/` documentation tree is not a prerequisite.
 
 ## Invocation
 

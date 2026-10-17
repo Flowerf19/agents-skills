@@ -57,8 +57,7 @@ Read the skill from the installation selected by the current host or project. Us
 - Match the user's language in conversation. Write shared instructions and skills in English. Keep identifiers, commands, and errors exact.
 - Report the outcome, supporting evidence, and unresolved decisions. Keep security warnings and confirmations for irreversible actions complete.
 
-## Subagents and independent review
+## Delegation and independent review
 
-- Delegate only approved work. Check the returned evidence and actual changes. Parallel work needs separate file ownership and stable shared interfaces; check the combined result.
+- Delegate only approved work. Check the returned evidence and actual changes before accepting them.
 - Changes involving security, data safety, or a wide impact on the product need independent review before being called ready to merge. If no reviewer is available, report it as outstanding. Self-review is not independent review.
-- Before spawning, verify the exact model ID and provider from the active runtime. Pass them explicitly when supported. For Codex, Claude, or Grok, use a verified model from that runtime's family. For Pi, Cursor, or an unknown host, inspect its runtime or model catalog first. Do not spawn if the identity cannot be verified.
