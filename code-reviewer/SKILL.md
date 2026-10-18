@@ -8,13 +8,13 @@ argument-hint: Diff, commit range, PR, or local changes with their requirements.
 
 Report confirmed problems in the actual change and explain their impact.
 
-Review is read-only. Do not fix code, rewrite tests, or change plan status. A verdict does not grant permission to implement, commit, or merge. Follow the project's independent-review requirements. Report unavailable independent review as outstanding; self-review does not replace it.
+Review is read-only. Do not fix code, rewrite tests, or change plan status. A verdict does not grant permission to implement, commit, or merge. Report unavailable independent review as outstanding; self-review does not replace it.
 
 ## Step 1: Set the review scope
 
 1. Identify the diff or commit range, requirements, approved scope, and check results.
 2. If no range was given, state which changes you selected. Keep unrelated existing edits outside the verdict.
-3. Read project instructions, relevant decisions, changed files, callers, and tests. Check current code against accepted requirements, not stale document claims.
+3. Check current code against accepted requirements, not stale document claims.
 4. If the target or requirement is unclear, ask or state the limits of the review. Do not invent a specification.
 
 ## Step 2: Check the change
@@ -54,4 +54,4 @@ Put findings first, most severe first. For each, include:
 
 If there are no confirmed findings, say so. End with `Approve`, `Approve with fixes`, or `Request changes`. Include untested risks and open questions. The verdict describes the reviewed change, not permission to deploy it.
 
-Return valid findings to `thoughtful-coder` only within an approved implementation. Send a new design or scope decision to the user or `implementation-planner`. Stop after the review for a review-only request.
+Stop after the review for a review-only request.

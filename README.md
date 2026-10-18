@@ -1,6 +1,6 @@
 # Agent Skills
 
-Shared rules and skills for coding agents. [AGENTS.md](AGENTS.md) sets the common permissions and project checks. Each skill adds steps for one kind of task.
+Shared rules and skills for coding agents. [AGENTS.md](AGENTS.md) is the canonical rule set — permissions, tool tiers, project grounding, and skill routing — and the host loads it in every session. Each skill adds steps for one kind of task and loads only when the task matches. This README covers installation and verification for humans; it does not repeat the rules in AGENTS.md.
 
 ## Core workflow skills
 
@@ -12,24 +12,15 @@ Shared rules and skills for coding agents. [AGENTS.md](AGENTS.md) sets the commo
 | [code-reviewer](code-reviewer/SKILL.md) | Review a diff, PR, or local changes | Findings and verdict; no edits |
 | [architecture-docs](architecture-docs/SKILL.md) | Write or update project guidance and prompts | Approved document changes; no runtime edits |
 
-Use only the skills the task needs. A small, clear change does not need a formal plan. An end-to-end fix includes the needed investigation, implementation, checks, review, and related docs within its approved scope.
+[WORKFLOW_AUDIT.md](WORKFLOW_AUDIT.md) records the source evidence and prompt reviews behind this suite. It is review history, not a file every task must read.
 
-## Work from the current project
+## How loading works
 
-1. Read the request, project instructions, affected code, callers, and tests. Check the branch or commit and existing changes.
-2. Check relevant project guides. A `.agents/` guide may need to be opened manually. Separate current code, accepted requirements, and old document claims.
-3. Plan when needed. Identify affected modules, inputs and outputs, task dependencies, and required checks. Task numbers do not define execution order.
-4. Make the approved change using the project's existing modules and interfaces.
-5. Check the changed behavior, its callers, and the relevant product flow. Report passed, failed, and skipped checks. Missing required checks remain outstanding.
-6. Review the actual diff, apply valid fixes within scope, and update directly affected docs. Commit, merge, and release need their own permission.
+- Load AGENTS.md through the host's recognized instruction entrypoint, separately from skill discovery. For example, reference it from Claude Code's personal `~/.claude/CLAUDE.md`, or use it as Pi's `~/.pi/agent/AGENTS.md`. Preserve existing host instructions when configuring this. Installing the skills does not automatically load AGENTS.md in every host.
+- The host advertises each skill's name and description; the SKILL.md body loads when a task matches or on explicit invocation.
+- Some subagent runtimes disable skill discovery while still loading AGENTS.md. The routing table in AGENTS.md names each skill and the standard install directories, so those agents can open the needed SKILL.md directly.
 
-Discussion-only, diagnosis-only, and review-only requests stop at their requested result. Do not run the full workflow for every task.
-
-These rules come from recurring patterns in the owner's projects. Keep workflow control separate from external calls, shared data definitions at their source, and tests connected to affected callers. Use each project's own database, agent stages, and UI conventions.
-
-[WORKFLOW_AUDIT.md](WORKFLOW_AUDIT.md) records the source evidence and prompt reviews. It is review history, not a file every task must read.
-
-## Installation and host configuration
+## Installation
 
 Personal installation:
 
@@ -44,8 +35,6 @@ git submodule add https://github.com/Flowerf19/agents-skills.git .agents/skills
 ```
 
 Configure skill discovery for the host. Claude Code discovers personal skills under `~/.claude/skills/` and project skills under `.claude/skills/`. Pi also discovers `~/.agents/skills/` and project `.agents/skills/`; a symlink can expose the same installation without copying files.
-
-Load the shared [AGENTS.md](AGENTS.md) through the host's recognized instruction entrypoint, separately from skill discovery. For example, reference it from Claude Code's personal `~/.claude/CLAUDE.md`, or use it as Pi's `~/.pi/agent/AGENTS.md`. Preserve existing host instructions when configuring this. Installing a skill does not automatically load this repository's common guide in every host.
 
 CodeGraph and other MCP services are optional, task-specific tools. An existing `.agents/` documentation tree is not a prerequisite.
 
@@ -68,19 +57,7 @@ Pi's explicit command uses a different prefix:
 
 Other hosts may use different discovery and invocation conventions; consult their documentation rather than assuming Claude Code syntax.
 
-Each `SKILL.md` includes `name`, `description`, and an optional `argument-hint`. Descriptions state what the skill does, when to select it, and relevant task keywords. Body instructions are loaded when needed. In Claude Code, arguments without a receiving placeholder are appended to the skill content; Pi appends explicit skill arguments as a user request. This suite does not require `$ARGUMENTS` substitution. `argument-hint` is a Claude Code extension; API or other portable packaging may require removing unsupported frontmatter fields.
-
-## Writing and permissions
-
-Write shared rules and skills in plain English. State the goal and allowed changes first. Use short sentences and numbered steps when order matters. Keep details such as migration, concurrency, and benchmarks conditional on the task.
-
-Keep common rules in `AGENTS.md` and task-specific steps in the skill. Each skill still states its own permission limit. Do not add repeated explanations of standard programming practices.
-
-A recommendation, an accepted design, and permission to implement are different. Plan status records progress; it does not approve work. Do not invent business rules to fill missing requirements.
-
-Split code for useful responsibilities, not a fixed line count. Do not create documentation folders, fill word quotas, or stop debugging after a fixed number of attempts just because a skill is active.
-
-Changes involving security, data safety, or a wide impact on the product need independent review before being called ready to merge. Report missing review as outstanding. Self-review is not independent review.
+Each `SKILL.md` has `name`, `description`, and an optional `argument-hint`. Descriptions state what the skill does, when to select it, and relevant task keywords. This suite does not require `$ARGUMENTS` substitution. `argument-hint` is a Claude Code extension; API or other portable packaging may require removing unsupported frontmatter fields.
 
 ## Verification
 
@@ -91,6 +68,7 @@ Check YAML metadata, description limits, local links, and the actual diff. Then 
 - Missing classification requirements must not produce fabricated keyword rules.
 - An authorized end-to-end fix must not ask for redundant approval at every handoff.
 - Pre-existing changes must remain separate; commit and push require authorization.
+- With skill discovery disabled, an agent that still loads AGENTS.md must route to the right SKILL.md from the table there.
 
 Static checks and independent prompt review do not establish runtime compliance. Inspect actual tool calls and repository changes during these tests, not just the agent's explanation.
 

@@ -10,12 +10,11 @@ Write guidance that is easy to follow and matches accepted decisions and verifie
 
 Edit only requested documents or docs directly affected by an approved implementation. Do not edit code, tests, configuration, or dependencies to make a document true. Do not change plan approvals or task status unless the request includes them or an approved implementation has verified progress to record.
 
-## Step 1: Read and check the facts
+## Step 1: Verify the facts
 
-1. Read the request, project instructions, accepted decisions, and documents in scope.
-2. Follow relevant links in the existing project guides. Do not assume every project has the same documentation folders.
-3. Verify file paths, symbols, commands, and behavior against current source. Record the branch or commit when comparing projects.
-4. Separate current behavior, accepted work that is not implemented, and proposals. Report disagreements that affect the document.
+1. Read the request, accepted decisions, and documents in scope. Follow relevant links in the existing project guides. Do not assume every project has the same documentation folders.
+2. Verify file paths, symbols, commands, and behavior against current source. Record the branch or commit when comparing projects.
+3. Separate current behavior, accepted work that is not implemented, and proposals. Report disagreements that affect the document.
 
 ## Step 2: Choose where to write
 
@@ -27,7 +26,7 @@ Keep a root README focused on purpose, requirements, usage, checks, and importan
 
 ## Step 3: Write clear instructions
 
-1. Use plain English for shared instructions and skills. Use the requested language for other documents. Keep identifiers and commands exact.
+1. Use the requested language for project documents. Keep identifiers and commands exact.
 2. State the goal and scope first. Use short sentences with a clear action.
 3. Use numbered steps when order matters. Put optional or task-specific details under a clear condition.
 4. Keep project rules the agent cannot infer from the code. Remove repeated advice, stale paths, unsupported claims, and arbitrary size limits.
@@ -45,5 +44,3 @@ When learning from other projects, use working code and tests as evidence. Reuse
 4. Update affected existing project guides or module READMEs when the approved work changes their instructions.
 
 Report changed documents, check results, and unresolved questions. Keep document errors separate from confirmed runtime bugs.
-
-Send a runtime bug to `debug-investigator`, a design question to `implementation-planner`, or an approved code correction to `thoughtful-coder`. Do not perform those code changes during documentation-only work.

@@ -13,9 +13,8 @@ Keep the repository unchanged for diagnosis-only requests. Use existing tests, r
 ## Step 1: Capture the failure
 
 1. Record expected and actual behavior, inputs, errors, and environment.
-2. Check the source branch or commit, project guides, and how the failing flow starts.
-3. Try the smallest reproduction. State whether the failure was reproduced.
-4. Check current behavior against accepted requirements. Do not assume a mocked flow or old document describes the real failure.
+2. Try the smallest reproduction. State whether the failure was reproduced.
+3. Check current behavior against accepted requirements. Do not assume a mocked flow or old document describes the real failure.
 
 ## Step 2: Trace the cause
 
@@ -46,4 +45,4 @@ Report:
 - A regression check and any broader checks the fix will need.
 - Whether implementation is approved.
 
-If a design question blocks the fix, pass the evidence to `implementation-planner`. If the cause is confirmed and coding is approved, continue with `thoughtful-coder`. Otherwise stop after the diagnosis. Review the resulting code diff with `code-reviewer`; a diagnosis alone is not a code review.
+Stop after the diagnosis unless coding is approved.
