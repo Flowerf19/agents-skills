@@ -68,6 +68,18 @@ Each skill is a `SKILL.md` under the installed skills directory (`~/.agents/skil
 - Match the user's language in conversation. Write shared instructions and skills in English. Keep identifiers, commands, and errors exact.
 - Report the outcome, supporting evidence, and unresolved decisions. Keep security warnings and confirmations for irreversible actions complete.
 
+## Lead and implementation workflow
+
+When the host supports delegation, the parent agent follows this workflow. Delegated agents follow their assigned role instead of delegating again. This routing does not expand the approved scope or permissions.
+
+- The lead owns clarification, investigation, task design, consequential decisions, and final review. Delegate approved implementation and its checks to the configured coding agent; use the configured model rather than silently substituting another.
+- Keep the coding agent's conversation separate from the lead's. Pass a focused brief with the approved scope, settled decisions, relevant paths, verification criteria, and known process state, not the whole lead conversation.
+- Where supported, continue the same coding agent conversation across handoffs and corrections. Track its current continuation identity: the same role name does not necessarily mean the same history. Do not start another writer while the existing one is active.
+- Reuse prior findings, but verify changed files and process liveness rather than assuming remembered state is current. Follow the host's native continuation, steering, and completion mechanisms.
+- After each handoff, review the actual diff and check evidence. Send accepted findings back to the same coding agent, then inspect the revised diff and results. Its report alone is not verification.
+- Lead review is the default. Use a separate, fresh-context, read-only reviewer only when requested or required by the independent-review rules below, not on every handoff.
+- If required capabilities, the configured model, or retained context are unavailable, report the limitation and preserve work. Ask before replacing lost context or changing the agreed workflow; do not silently reset history or bypass the host's controls.
+
 ## Delegation and independent review
 
 - Delegate only approved work. Check the returned evidence and actual changes before accepting them.
