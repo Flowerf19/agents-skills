@@ -2,6 +2,12 @@
 
 The source audit below records the work merged in [PR #1](https://github.com/Flowerf19/agents-skills/pull/1). It is historical evidence, not required context for every task.
 
+## Current status (2026-10-31)
+
+This file records the 2026-10-01 baseline. [AGENTS.md](AGENTS.md) holds the current operating rules. For hosts that support the configured fusion delegation, those rules require delegation to `fusion-executor` for approved code, test, and configuration changes. They also require a separate fresh-context `REVIEW` by `fusion-planner-reviewer` after every implementation or correction handoff. A failed or verdict-less review gets one new fresh-context retry and otherwise stays outstanding.
+
+Runtime checks performed after this audit are recorded in the [Verification section of the pi-config README](https://github.com/Flowerf19/pi-config#verification). The baseline workflow and walkthrough below explain how the suite reached that point; do not use them as current operating instructions.
+
 ## Source audit baseline
 
 Audit date: 2026-10-01. Target baseline: [`f1e72be`](https://github.com/Flowerf19/agents-skills/commit/f1e72be8debcf8655f047f2c0e017ac6a17cf3e1). Scope: common rules and the five coding-workflow skills, compared with selected source, contracts, tests, and project guidance on the source repositories' `main` snapshots below. This is a workflow audit, not a comprehensive bug audit of those projects. Other branches, unpushed work, and production deployments were not inspected.
@@ -37,7 +43,7 @@ These are pinned observations, not a claim that every existing implementation is
 
 An additional private document-processing benchmark was inspected through its shared client, scoring utility, and backend wrapper. Its source and data are not reproduced here; the shared conclusions above have public source support. Repository inventories for the ASR benchmark and LLM cookbook contained guidance/plans but no corresponding runtime source, so they were not used as implementation evidence.
 
-## Resulting workflow
+## Resulting workflow at the audit baseline
 
 Use the project's current layout and vocabulary. For non-trivial authorized work:
 
@@ -48,7 +54,7 @@ Use the project's current layout and vocabulary. For non-trivial authorized work
 5. Review the actual combined diff, validate findings, correct within scope, and rerun affected checks. Use independent review when required and available.
 6. Synchronize affected existing guidance and record accurate completion, acceptance, and review status. Commit, merge, and release retain separate authorization.
 
-Small, understood changes need no formal plan. Diagnosis-only, architecture-only, and review-only requests stop at the requested product. An end-to-end request does not need repeated permission at ordinary handoffs. These steps do not require spawning agents, creating classes, using all five skills, or introducing a universal directory scaffold.
+Small, understood changes need no formal plan. Diagnosis-only, architecture-only, and review-only requests stop at the requested product. An end-to-end request does not need repeated permission at ordinary handoffs. At this baseline, these steps did not require spawning agents, creating classes, using all five skills, or introducing a universal directory scaffold.
 
 ## Verification and limits
 
