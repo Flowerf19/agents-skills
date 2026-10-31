@@ -23,7 +23,10 @@ Edit only when implementation is approved. An accepted design or review suggesti
 3. Reuse existing interfaces, factories, and classes when useful. Add layers only when the change needs them.
 4. Check affected callers after each meaningful part of the change. For refactors or interface changes, check public imports, function arguments, API fields, errors, and callers. Preserve required event order, data source tracking, and stored-data behavior.
 5. Preserve input validation and useful errors. Use a fallback only when it is accepted behavior. Ask about missing business rules instead of guessing defaults.
-6. Avoid unrelated cleanup, formatting, and unneeded dependencies. Explain non-obvious decisions in comments. Removing existing functionality needs permission and an explanation of the impact.
+6. Avoid unrelated cleanup, formatting, and unneeded dependencies. Removing existing functionality needs permission and an explanation of the impact.
+7. Put a short comment directly above every method or function you add or change. Use the comment syntax of the language (`#` in Python, `//` in TypeScript or Go). Write one line in plain words: what the method does, and why it exists when the name does not say it. Word it by the "Plain writing" rules in AGENTS.md. A one-line docstring in the same place counts when the file already uses docstrings for every method. Follow the same form for comments you add inside the code to explain a hard part.
+8. Follow the project's design style. Where the code is object-oriented, give each class one clear concept. Keep its data and the work on that data together, hide internal state behind methods, and prefer composition over deep inheritance. Do not force classes onto plain scripts or data-only modules that the project keeps simple.
+9. Keep one clear responsibility per file. When a file passes 500 lines, check what it holds. If it holds two or more responsibilities, split it along that boundary when the task scope allows, or report the split as follow-up work. A longer file with one clear responsibility may stay; say why in the report.
 
 ## Step 3: Verify the behavior
 
@@ -43,4 +46,4 @@ If a check fails, investigate the cause. Do not weaken assertions or add patches
 3. Update directly affected existing docs. Do not create unrelated guidance.
 4. Update an existing approved plan with verified progress. Mark it `done` only after its tasks are implemented and verified. Do not create a plan just to mark it complete.
 
-Report what changed, checks and results, review status, remaining gaps, and compatibility or data-safety impact. Keep implementation, product checks, review, and release status separate.
+Report what changed, checks and results, review status, remaining gaps, and compatibility or data-safety impact. Write the report in plain language, following the "Plain writing" section in AGENTS.md. Keep implementation, product checks, review, and release status separate.

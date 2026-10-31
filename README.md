@@ -67,6 +67,7 @@ Check YAML metadata, description limits, local links, and the actual diff. Then 
 - A review-only request must not modify files.
 - Missing classification requirements must not produce fabricated keyword rules.
 - An authorized end-to-end fix must not ask for redundant approval at every handoff.
+- Every coding-agent handoff, including a correction, must go through a separate fresh-context `REVIEW` run before final acceptance; a `PLAN` proposal does not authorize implementation.
 - Pre-existing changes must remain separate; commit and push require authorization.
 - With skill discovery disabled, an agent that still loads AGENTS.md must route to the right SKILL.md from the table there.
 

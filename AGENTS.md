@@ -40,7 +40,7 @@ Classify every operation by its effect, not by the tool that performs it. One to
 - Follow working nearby code and tests. Do not copy a placeholder, old workaround, or known defect as a pattern.
 - Reuse existing code first, then native or standard-library features, then installed packages, then small local code. Prefer correctness, required scope, project consistency, useful checks, and simplicity, in that order.
 - Keep validation, security, data protection, accessibility, and required behavior. Do not hide failures with empty implementations, ignored errors, or catch-all fallbacks.
-- Keep each responsibility in its existing module. Add a class or split a file only when the work needs it. A line count alone is not a reason to refactor.
+- Keep each responsibility in its existing module. Add a class or split a file only when the work needs it. Treat 500 lines as a warning line: past it, check whether the file mixes responsibilities, and split along that boundary when it does. Size alone never forces a split.
 - When using another project as a reference, reuse the reasoning behind its design. Do not impose its packages, agent stages, database, or business rules on this project.
 - Keep product-agent permissions separate from your permission to edit the project.
 
@@ -68,19 +68,35 @@ Each skill is a `SKILL.md` under the installed skills directory (`~/.agents/skil
 - Match the user's language in conversation. Write shared instructions and skills in English. Keep identifiers, commands, and errors exact.
 - Report the outcome, supporting evidence, and unresolved decisions. Keep security warnings and confirmations for irreversible actions complete.
 
+## Plain writing
+
+Write documents, code comments, plans, and reports in plain language, following ISO 24495-1. The reader must find, understand, and use the text on the first read.
+
+- State the goal or result first. Then add detail in a useful order.
+- Use short sentences with one idea each. Prefer common words and the active voice.
+- Use the terms the reader already knows. Explain a new technical term once, where it first appears.
+- Use headings, lists, and numbered steps so the reader can scan and find the right part fast.
+- In code comments, explain what the code does when a reader cannot see it at a glance, and why it is there or which rule or limit it follows. Skip comments that only repeat the code word for word.
+- Keep names, commands, paths, and error text exact. Plain wording never changes an identifier.
+
 ## Lead and implementation workflow
 
 When the host supports delegation, the parent agent follows this workflow. Delegated agents follow their assigned role instead of delegating again. This routing does not expand the approved scope or permissions.
 
-- The lead owns clarification, investigation, task design, consequential decisions, and final review. Delegate approved implementation and its checks to the configured coding agent; use the configured model rather than silently substituting another.
-- Keep the coding agent's conversation separate from the lead's. Pass a focused brief with the approved scope, settled decisions, relevant paths, verification criteria, and known process state, not the whole lead conversation.
+When they are advertised, `fusion-executor` is the configured coding agent and `fusion-planner-reviewer` is the configured planning/review agent. In another host, use its configured equivalents.
+
+**Mandatory delegation gate:** for every approved code, test, or configuration change, the parent must delegate implementation to the configured coding agent before changing project files. This applies even to a trivial or one-line fix. The parent may inspect files and run baseline checks to prepare the brief, but must not use edit/write tools or file-changing shell commands for the implementation itself. Loading `thoughtful-coder` does not turn the parent into the coding agent; the delegated coding agent applies that skill. If delegation or the configured coding agent is unavailable, stop and report the blocker instead of implementing directly.
+
+- The lead owns clarification, orchestration, consequential decisions, and final acceptance. Use one configured read-only planning/review agent on the configured premium model, with the same model for both modes. The lead and coding agent may use the standard tier. Never silently substitute another model for any configured role.
+- When a task needs design comparison or a formal plan, send the planning/review agent a fresh-context `PLAN` brief containing the question, accepted constraints, relevant paths, non-goals, and required checks. Its plan is a proposal, not approval. The lead resolves blocking questions and obtains any required approval before implementation. Skip formal planning for a small, clear change.
+- Delegate every approved implementation and its checks to the configured coding agent. Do not override its configured model in the launch. Keep its conversation separate from the lead's. Pass a focused brief with the approved scope, settled decisions, relevant paths, verification criteria, and known process state, not the whole lead conversation.
 - Where supported, continue the same coding agent conversation across handoffs and corrections. Track its current continuation identity: the same role name does not necessarily mean the same history. Do not start another writer while the existing one is active.
 - Reuse prior findings, but verify changed files and process liveness rather than assuming remembered state is current. Follow the host's native continuation, steering, and completion mechanisms.
-- After each handoff, review the actual diff and check evidence. Send accepted findings back to the same coding agent, then inspect the revised diff and results. Its report alone is not verification.
-- Lead review is the default. Use a separate, fresh-context, read-only reviewer only when requested or required by the independent-review rules below, not on every handoff.
-- If required capabilities, the configured model, or retained context are unavailable, report the limitation and preserve work. Ask before replacing lost context or changing the agreed workflow; do not silently reset history or bypass the host's controls.
+- **Mandatory review gate:** after every coding-agent completion or correction handoff, collect the actual diff and check evidence, then send them to the planning/review agent in a separate fresh-context `REVIEW` run before sending the final response. This applies regardless of diff size or passing tests. Do not override its configured model in the launch. Planning and review share an agent definition and model, never the same run or conversation. Do not call the work accepted before this review returns; the coding agent's report alone is not verification. If a `REVIEW` run fails, errors, or returns no verdict, start one new fresh-context `REVIEW` run; never resume the failed review conversation. If that run also fails, report the review as outstanding and stop. Do not present the work as reviewed.
+- Check the diff and review findings before acting on them. Send accepted findings back to the same coding agent. Treat its revised report as a new handoff and run `REVIEW` again before final acceptance.
+- If required capabilities, the configured premium model, or retained context are unavailable, report planning or review as outstanding and preserve work. Do not replace mandatory review with lead self-review or silently downgrade the model. Ask before replacing lost context or changing the agreed workflow; do not silently reset history or bypass the host's controls.
 
 ## Delegation and independent review
 
 - Delegate only approved work. Check the returned evidence and actual changes before accepting them.
-- Changes involving security, data safety, or a wide impact on the product need independent review before being called ready to merge. If no reviewer is available, report it as outstanding. Self-review is not independent review.
+- Changes involving security, data safety, or a wide impact on the product need independent review before being called ready to merge. A fresh-context, read-only `REVIEW` run is independent of the coding agent, but it is not final acceptance. If no reviewer is available, report it as outstanding. Self-review is not independent review.

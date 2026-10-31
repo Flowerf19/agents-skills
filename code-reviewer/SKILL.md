@@ -25,7 +25,11 @@ Check the parts relevant to the task:
 - Correctness: inputs, errors, event order, and state changes work as required. Check concurrent updates when relevant. For heuristics, check their basis and counterexamples.
 - Security and data: input validation, permissions, tenant separation, secrets, parsing, and deletion remain safe.
 - Compatibility: callers, public imports, APIs, configuration, stored data, and migrations still match the accepted behavior.
-- Structure and scope: rules and external calls stay in their existing modules. Shared data definitions stay at their source. Do not demand new layers or refactors just for style or file size.
+- Structure and scope: rules and external calls stay in their existing modules. Shared data definitions stay at their source. Do not demand new layers or refactors just for style.
+- Method comments: each new or changed method or function has a short comment directly above it in the language's comment syntax (`#` in Python, `//` in TypeScript or Go). The comment says in plain words what the method does. A one-line docstring in the same place counts when the file already uses docstrings for every method. A missing comment is a Minor finding.
+- Object design: where the code is object-oriented, each class holds one clear concept, internal state stays hidden behind methods, and inheritance marks a real is-a relation. A class that mixes unrelated jobs is an Important finding.
+- File size: a changed file over 500 lines must hold one clear responsibility. Flag mixed responsibilities as Important. Flag growth past 500 lines with no stated reason as Minor.
+- Plain writing: documents, comments, and reports follow the "Plain writing" section in AGENTS.md (ISO 24495-1). Text the reader cannot understand on the first read is a Minor finding.
 - Integration: follow moved or changed code through its callers to the actual product flow. Check API fields, errors, event order, and data source tracking where affected.
 - Tests: assertions cover required behavior and important failures. Changed expectations have a valid reason. Compare reported results with the evidence. Run safe, relevant checks when useful and report what you ran.
 - Required checks: task prerequisites and checks before the next phase were respected. Skipped required checks remain outstanding. Mock tests do not prove real service or model behavior.
@@ -41,7 +45,7 @@ For a benchmark, also check where the measurements came from and whether the com
 
 ## Step 4: Return the review
 
-Put findings first, most severe first. For each, include:
+Put findings first, most severe first. Write each finding in plain words: name the problem, then its impact, then the smallest fix. For each, include:
 
 - `[Critical / Important / Minor]` and `path:line`.
 - The problem, evidence, concrete impact, and smallest correction.

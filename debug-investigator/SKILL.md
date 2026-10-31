@@ -36,7 +36,7 @@ If checks stop producing useful evidence, stop the investigation. Report what wa
 
 ## Step 4: Return the diagnosis
 
-Report:
+Report in plain language, following the "Plain writing" section in AGENTS.md. Lead with the cause in plain words. Then give the evidence:
 
 - Expected and actual behavior, with reproduction steps when available.
 - Confirmed cause and evidence: file locations, logs, or check results.

@@ -26,21 +26,24 @@ Keep a root README focused on purpose, requirements, usage, checks, and importan
 
 ## Step 3: Write clear instructions
 
+Follow the "Plain writing" section in AGENTS.md. It applies ISO 24495-1: the reader must find, understand, and use the text on the first read.
+
 1. Use the requested language for project documents. Keep identifiers and commands exact.
-2. State the goal and scope first. Use short sentences with a clear action.
-3. Use numbered steps when order matters. Put optional or task-specific details under a clear condition.
-4. Keep project rules the agent cannot infer from the code. Remove repeated advice, stale paths, unsupported claims, and arbitrary size limits.
+2. State the goal and scope first. Use short sentences, one idea per sentence, and a clear action.
+3. Use headings and numbered steps when order matters. Put optional or task-specific details under a clear condition.
+4. Keep project rules the agent cannot infer from the code. Remove repeated advice, stale paths, unsupported claims, and size limits with no stated purpose.
 5. Preserve security and data-loss warnings in full.
 
-For skills, check when each skill is selected, what it may change, what it returns, and where it stops. A handoff cannot grant extra permission.
+For skills, check when each skill is selected, what it may change, what it returns, and where it stops.
 
 When learning from other projects, use working code and tests as evidence. Reuse useful design principles; keep project-specific databases, agent stages, business rules, and themes out of shared requirements.
 
 ## Step 4: Review and report
 
-1. Check links, paths, commands, names, versions, and contradictions across the changed documents.
-2. For a prompt rewrite, walk through representative requests and check permissions, steps, outputs, and handoffs. Use independent review when required and available.
-3. Run safe checks needed to support factual claims. Do not describe a proposed flow as tested.
-4. Update affected existing project guides or module READMEs when the approved work changes their instructions.
+1. Read the final text once as the reader. Check that the goal comes first, each term is explained, and every step sits in the right order.
+2. Check links, paths, commands, names, versions, and contradictions across the changed documents.
+3. For a prompt rewrite, walk through representative requests and check permissions, steps, outputs, and handoffs. Use independent review when required and available.
+4. Run safe checks needed to support factual claims. Do not describe a proposed flow as tested.
+5. Update affected existing project guides or module READMEs when the approved work changes their instructions.
 
 Report changed documents, check results, and unresolved questions. Keep document errors separate from confirmed runtime bugs.

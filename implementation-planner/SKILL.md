@@ -14,7 +14,7 @@ Plan only. Do not edit code, tests, configuration, dependencies, or unrelated gu
 
 1. State the goal, required behavior, constraints, and work outside the scope.
 2. Follow the affected flow from its starting point to its caller. Find the modules that create and use the data, where shared types are defined, and where dependencies are connected.
-3. If a bug's cause is unclear, get a diagnosis first. Skip formal planning for a small, clear change.
+3. If a bug's cause is unclear, get a diagnosis first.
 
 ## Step 2: Resolve design questions
 
@@ -22,6 +22,8 @@ Plan only. Do not edit code, tests, configuration, dependencies, or unrelated gu
 2. Ask about missing business rules or choices that change the approved scope. Keep blocking questions open until answered.
 
 ## Step 3: Write the needed plan
+
+Write the plan in plain language, following the "Plain writing" section in AGENTS.md (ISO 24495-1). Put the goal first, number the steps, and explain each new term once.
 
 Use the existing plan format. If none exists, put an approved plan file in `.agents/plans/<slug>.md`. Create only the folder needed for that file.
 
