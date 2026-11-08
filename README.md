@@ -52,17 +52,20 @@ Claude Code example:
 1. Clarify or plan when needed.
 2. Do only approved work.
 3. Run the needed checks.
-4. Review the change in a fresh context.
+4. On the multi-agent route, review each delegated handoff in a fresh context. On the direct route, check the change against the request and record the results.
 5. Report what passed, what failed, and what is still open.
 
 ## Quick checks
 
 - A discussion must not turn into code changes.
 - A review must not edit files.
-- Every code handoff needs a separate fresh `REVIEW`.
+- Every delegated code handoff needs a separate fresh `REVIEW`.
+- A direct-route task must not bypass a pending delegated review.
 - A failed review is not a pass.
 
 ## Notes
+
+A static read of a skill is not a measured check. A measured check needs realistic cases with expected behavior, including cases that should trigger the skill and near-miss cases that should not. Compare against a baseline in fresh sessions. Keep the actual output, trace, and timing as evidence. This repo has no such measurements yet.
 
 MCP servers belong to host config, not this repo. On this machine, Pi gets CodeGraph and Context7 from `pi-config`.
 
