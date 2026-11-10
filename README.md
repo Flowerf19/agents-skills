@@ -52,14 +52,14 @@ Claude Code example:
 1. Clarify or plan when needed.
 2. Do only approved work.
 3. Run the needed checks.
-4. On the multi-agent route, review each delegated handoff in a fresh context. On the direct route, check the change against the request and record the results.
+4. On the multi-agent route, resume the same planning/review conversation after each delegated handoff. PLAN and REVIEW share that conversation; the coding agent keeps its own separate conversation for implementation and corrections. On the direct route, check the change against the request and record the results.
 5. Report what passed, what failed, and what is still open.
 
 ## Quick checks
 
 - A discussion must not turn into code changes.
 - A review must not edit files.
-- Every delegated code handoff needs a separate fresh `REVIEW`.
+- Every delegated code handoff needs `REVIEW` in the retained planning/review conversation, not a new reviewer.
 - A direct-route task must not bypass a pending delegated review.
 - A failed review is not a pass.
 

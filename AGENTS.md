@@ -38,6 +38,9 @@ Classify every operation by its effect, not by the tool that performs it. One to
 ## Keep changes focused
 
 - Follow working nearby code and tests. Do not copy a placeholder, old workaround, or known defect as a pattern.
+- When an approved change replaces an interface or behavior, default to a clean cutover: move the affected flow fully to the new design. Do not add or retain compatibility shims, deprecated aliases, forwarding wrappers, legacy fallbacks, or parallel old/new paths solely to support the replaced design unless accepted requirements explicitly require them. Existing code alone is not such a requirement.
+- Update all affected in-project callers, imports, exports, tests, configuration, and docs in the same task. Remove superseded code and dead branches in that flow; this is part of completing the replacement, not unrelated cleanup. Keep cleanup outside the affected flow out of scope.
+- A clean cutover does not authorize deleting data, breaking required external contracts, or removing unrelated functionality. If the replacement conflicts with an accepted contract or requires a data migration or destructive action that has not been approved, report the conflict and ask before proceeding. Do not silently add a compatibility layer to avoid that decision.
 - Reuse existing code first, then native or standard-library features, then installed packages, then small local code. Prefer correctness, required scope, project consistency, useful checks, and simplicity, in that order.
 - Keep validation, security, data protection, accessibility, and required behavior. Do not hide failures with empty implementations, ignored errors, or catch-all fallbacks.
 - Keep each responsibility in its existing module. Add a class or split a file only when the work needs it. Treat 500 lines as a warning line: past it, check whether the file mixes responsibilities, and split along that boundary when it does. Size alone never forces a split.
@@ -77,6 +80,8 @@ Write documents, code comments, plans, and reports in plain language, following 
 - Use the terms the reader already knows. Explain a new technical term once, where it first appears.
 - Use headings, lists, and numbered steps so the reader can scan and find the right part fast.
 - In code comments, explain what the code does when a reader cannot see it at a glance, and why it is there or which rule or limit it follows. Skip comments that only repeat the code word for word.
+- Use `## ...` for explanatory comments above Python functions or methods. Use the language's own comment syntax elsewhere, such as `// ...` in JavaScript, TypeScript, or Go. Do not apply the Python prefix to other languages.
+- A Python function or method docstring belongs inside its body as the first statement, not as a bare string above the definition. Follow existing docstring conventions without duplicating an explanation in both a comment and a docstring.
 - Keep names, commands, paths, and error text exact. Plain wording never changes an identifier.
 
 ## Lead and implementation workflow
@@ -84,6 +89,8 @@ Write documents, code comments, plans, and reports in plain language, following 
 When the host supports delegation, the parent agent follows this workflow. Delegated agents follow their assigned role instead of delegating again. This routing does not expand the approved scope or permissions.
 
 When they are advertised, `fusion-executor` is the configured coding agent and `fusion-planner-reviewer` is the configured planning/review agent. In another host, use its configured equivalents.
+
+Generic package recipes are defaults, not overrides for this configured workflow. A recipe that recommends fresh reviewers does not replace the retained planning/review conversation required below. Creating a new conversation and resuming an existing one are different operations.
 
 **Task assessment first: does this task need the multi-agent workflow?** Assess before any delegation. Then use either the direct route or the multi-agent route. Reassess if the task grows, turns unclear, or shows new risk.
 

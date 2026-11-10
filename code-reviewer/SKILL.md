@@ -24,9 +24,10 @@ Check the parts relevant to the task:
 - Requirements: requested behavior is complete; proposed business rules have not become defaults without approval.
 - Correctness: inputs, errors, event order, and state changes work as required. Check concurrent updates when relevant. For heuristics, check their basis and counterexamples.
 - Security and data: input validation, permissions, tenant separation, secrets, parsing, and deletion remain safe.
-- Compatibility: callers, public imports, APIs, configuration, stored data, and migrations still match the accepted behavior.
+- Required contracts: callers, public imports, APIs, configuration, stored data, and migrations match the accepted behavior. Do not report an explicitly approved breaking change as a regression solely because the old interface no longer works. Still flag unapproved breaks to required external contracts or unsafe data changes.
+- Clean cutover: apply the replacement rule in AGENTS.md. Check caller conversion and removal or update of superseded code, exports, configuration, and docs. An unapproved compatibility layer or an incomplete cutover that leaves affected callers on the replaced path is an Important finding. Do not flag adapters or multiple paths that serve distinct, still-required behavior as legacy merely because of their shape. Keep unrelated cleanup outside the review scope.
 - Structure and scope: rules and external calls stay in their existing modules. Shared data definitions stay at their source. Do not demand new layers or refactors just for style.
-- Method comments: each new or changed method or function has a short comment directly above it when its behavior, intent, rule, or limit is not clear from the code, in the language's comment syntax (`#` in Python, `//` in TypeScript or Go). The comment says in plain words what the method does, and why it exists when the name does not say it. A one-line docstring in the same place counts when the file already uses docstrings for every method. A missing useful comment is a Minor finding. Do not flag a missing comment when the code is self-explanatory.
+- Method comments: check explanatory comments and docstring placement against AGENTS.md. A missing useful explanation for non-obvious behavior is a Minor finding. Do not demand comments that merely repeat self-explanatory code.
 - Object design: where the code is object-oriented, each class holds one clear concept, internal state stays hidden behind methods, and inheritance marks a real is-a relation. A class that mixes unrelated jobs is an Important finding.
 - File size: a changed file over 500 lines must hold one clear responsibility. Flag mixed responsibilities as Important. Flag growth past 500 lines with no stated reason as Minor.
 - Plain writing: documents, comments, and reports follow the "Plain writing" section in AGENTS.md (ISO 24495-1). Text the reader cannot understand on the first read is a Minor finding.
@@ -53,7 +54,7 @@ Put findings first, most severe first. Write each finding in plain words: name t
 | Severity | Meaning |
 |---|---|
 | Critical | Security failure, data loss, or failure of the main product flow |
-| Important | Wrong required behavior, broken compatibility, or a meaningful missing check |
+| Important | Wrong required behavior, an incomplete cutover or unapproved compatibility layer, a broken required contract, or a meaningful missing check |
 | Minor | Confirmed issue that does not block acceptance; not a personal style preference |
 
 If there are no confirmed findings, say so. End with `Approve`, `Approve with fixes`, or `Request changes`. Include untested risks and open questions. The verdict describes the reviewed change, not permission to deploy it.

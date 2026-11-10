@@ -18,12 +18,13 @@ Plan only. Do not edit code, tests, configuration, dependencies, or unrelated gu
 
 ## Step 2: Resolve design questions
 
-1. Compare useful options for correctness, compatibility, cost, and testing. Recommend one. Keep proposals separate from accepted decisions.
+1. Compare useful options for correctness, required contracts, cost, and testing. Recommend one. Keep proposals separate from accepted decisions.
 2. Ask about missing business rules or choices that change the approved scope. Keep blocking questions open until answered.
+3. For replacement work, follow the clean-cutover rule in AGENTS.md. List the affected callers to move, superseded code to remove, and any explicitly required compatibility exception with its source. Surface conflicts with required external contracts, stored data, or migration permissions before execution.
 
 ## Step 3: Write the needed plan
 
-Write the plan in plain language, following the "Plain writing" section in AGENTS.md (ISO 24495-1). Put the goal first, number the steps, and explain each new term once.
+Write the plan using the "Plain writing" rules in AGENTS.md.
 
 Use the existing plan format. If none exists, put an approved plan file in `.agents/plans/<slug>.md`. Create only the folder needed for that file.
 
@@ -37,8 +38,8 @@ Include:
 
 Add details only when relevant:
 
-- Interface changes: inputs, outputs, errors, callers, and behavior that must stay the same.
-- Refactors: public imports, API payloads, event order, and stored-data compatibility.
+- Interface changes: the accepted new inputs, outputs, errors, affected callers, and behavior that must stay the same. For replacements, include caller conversion, removal of obsolete paths, and any explicitly required compatibility exception with its source.
+- Refactors: public imports, API payloads, event order, and required stored-data behavior. Identify data migrations or destructive actions that need separate approval; a clean cutover does not authorize data loss.
 - State changes: cancellation, concurrent updates, restart, migration, and rollback.
 - UI changes: routes, shared components, and current design tokens.
 - Benchmarks or classifiers: agreed metrics, representative cases, and counterexamples. Do not invent score thresholds.
